@@ -14,13 +14,13 @@ namespace claymore
     namespace gui
     {
         /*-----------------------------------------------------*\
-        | The eye emblem, drawn with cairo in the Republic of     |
-        | Gamers idiom: ROG red, tilted, and cut into three       |
-        | tapered stripes so it still reads as an eye at 16       |
-        | pixels. It is drawn from scratch rather than loaded,    |
-        | which is what lets the title bar, the task bar and the  |
-        | panel icon be the same picture with no files to install |
-        | and no way for them to disagree.                       |
+        | The ROG emblem, drawn with cairo in the Republic of     |
+        | Gamers idiom: ROG red on a near black plate. Its three  |
+        | contours - feather, middle cluster and blade - were     |
+        | traced from the source bitmap. It is drawn from scratch |
+        | rather than loaded, which is what lets the title bar,   |
+        | the task bar and the panel icon be the same picture     |
+        | with no files to install and no way for them to disagree|
         |                                                       |
         | assets/rog-claymore.svg is the same geometry as         |
         | vectors; 'make verify-install' fails if the two ever    |

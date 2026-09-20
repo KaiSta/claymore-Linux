@@ -6,7 +6,7 @@ Section: utils
 Priority: optional
 Depends: libc6 (>= 2.34), libgtk-3-0t64 | libgtk-3-0
 Suggests: systemd
-Installed-Size: 1184
+Installed-Size: 1192
 Description: lighting control for the ASUS ROG Claymore on Linux
  Effects, per-key designs and an Aura Sync style socket for the ASUS ROG
  Claymore, without the vendor software.
