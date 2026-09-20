@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- rog-claymore-linux : the keyboard panel, window and launcher icon.
-
-     The same emblem is drawn at runtime with cairo (gui/icon.cpp), so nothing
-     has to be installed for the window and panel icons to work. This file is
-     for the desktop entry, the launcher and the package, and it holds the same
-     geometry: three contours traced from the red mask of the source bitmap -
-     the feather, the middle cluster and the blade.
-
-     It is an emblem in the Republic of Gamers idiom, in ROG red. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- rog-claymore-linux : the keyboard panel, window and launcher icon.
+
+       The same emblem is drawn at runtime with cairo (gui/icon.cpp), so nothing
+       has to be installed for the window and panel icons to work. This file is
+       for the desktop entry, the launcher and the package, and it holds the
+       same geometry: three contours traced from the red mask of the source
+       bitmap - the feather, the middle cluster and the blade.
+
+       This comment sits after <svg> on purpose, and must stay here: the
+       desktop reads icons through GdkPixbuf, whose loader only looks for the
+       root element in the first 256 bytes of the file. A comment long enough
+       to push <svg> past that hides the icon from the applications menu, and
+       from anything else that draws it through GdkPixbuf, while rsvg-convert
+       and a browser - which read the whole file - keep showing it.
+
+       It is an emblem in the Republic of Gamers idiom, in ROG red. -->
   <title>ROG Claymore</title>
   <rect width="512" height="512" rx="112.64" ry="112.64" fill="#121217"/>
   <g fill="#ff003d">

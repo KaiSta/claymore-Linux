@@ -184,6 +184,26 @@ if command -v rsvg-convert >/dev/null 2>&1 && command -v compare >/dev/null 2>&1
     fi
 fi
 
+# rsvg-convert reads the whole file, so it renders an SVG that GdkPixbuf will
+# not even look at - and GdkPixbuf is what the desktop draws menu and launcher
+# icons through. Its loader only sniffs the first 256 bytes for the root
+# element, so a comment long enough to push <svg> past that hides the icon from
+# the applications menu while the check above, a browser and every other tool
+# that reads the file properly keep showing it. Load it the way the desktop
+# does, or that bug ships again.
+if command -v gdk-pixbuf-thumbnailer >/dev/null 2>&1; then
+    rm -f build/install-icon-gdkpixbuf.png
+
+    if gdk-pixbuf-thumbnailer -s 256 \
+        "$STAGE/usr/local/share/icons/hicolor/scalable/apps/rog-claymore.svg" \
+        build/install-icon-gdkpixbuf.png >/dev/null 2>&1 \
+       && [ -s build/install-icon-gdkpixbuf.png ]; then
+        ok "the scalable icon loads the way the desktop loads it"
+    else
+        fail "GdkPixbuf cannot read the scalable icon, so the menu will not show it"
+    fi
+fi
+
 echo
 echo "step 5: the man pages decompress and name the command"
 for page in claymore claymore-gui; do
