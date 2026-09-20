@@ -1,0 +1,43 @@
+rog-claymore-linux
+Copyright (C) 2026 the rog-claymore-linux contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <https://www.gnu.org/licenses/>.
+
+The full text of GPL-2.0 is available at:
+https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+
+--------------------------------------------------------------------------------
+
+WHY GPL-2.0-OR-LATER, AND WHAT IS DERIVED
+
+This project drives the ASUS ROG Claymore's lighting by speaking its USB HID
+protocol. That protocol, and the per-key LED layout tables, were reverse
+engineered by the OpenRGB project:
+
+    OpenRGB - https://openrgb.org/
+    Controllers/AsusAuraUSBController/AsusAuraTUFKeyboardController/
+    Author: Mola19
+    Licence: GPL-2.0-or-later
+
+Because this project builds directly on that work, it is licensed under the same
+terms. The derivation is recorded in the following places:
+
+  * docs/PROTOCOL.md           the protocol as implemented here
+  * include/claymore/protocol.hpp   packet layouts and mode numbering
+  * src/layout_data.cpp        GENERATED from the OpenRGB layout header by
+                               tools/gen_layout.py; do not edit by hand
+  * src/device.cpp             firmware writes and sequence ordering
+
+No OpenRGB source was copied verbatim; the packet builders are independent
+implementations of the documented format, and the layout tables are extracted
+mechanically so that their provenance stays auditable.

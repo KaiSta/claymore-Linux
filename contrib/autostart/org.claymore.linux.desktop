@@ -1,0 +1,29 @@
+[Desktop Entry]
+Type=Application
+Name=ROG Claymore
+Comment=Apply the saved design at login and wait in the panel
+Exec=claymore-gui
+Icon=rog-claymore
+Terminal=false
+StartupNotify=false
+
+# Nothing here says "hide the window", and that is deliberate: 'Start in the
+# panel' is a saved preference, so this entry stays a one-liner that cannot
+# drift out of sync with what the program actually does.
+#
+# Turn it on first:
+#
+#     claymore settings start-in-tray on
+#
+# or tick 'Start in the panel' in the header. Then copy this file:
+#
+#     install -Dm644 contrib/autostart/org.claymore.linux.desktop \
+#         ~/.config/autostart/org.claymore.linux.desktop
+#
+# The design applied at login is the one marked 'Load at startup' in the GUI,
+# or whichever 'claymore default <name>' names.
+#
+# 'make install' deliberately does not install this. Starting a program at
+# everybody's login is the user's decision, not the package's; the systemd unit
+# in contrib/claymore-design.service is the option for people who want the
+# design applied with no window at all and nothing left running.

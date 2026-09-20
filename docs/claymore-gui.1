@@ -1,0 +1,113 @@
+.\" rog-claymore-linux
+.\" SPDX-License-Identifier: GPL-2.0-or-later
+.TH CLAYMORE-GUI 1 "September 2026" "rog-claymore-linux 1.0.0" "User Commands"
+.SH NAME
+claymore-gui \- lighting control for the ASUS ROG Claymore
+.SH SYNOPSIS
+.B claymore-gui
+[
+.B \-\-tray
+|
+.B \-\-window
+] [
+.B \-\-no\-design
+]
+.br
+.B claymore-gui
+.B \-\-export-icons
+.I directory
+.SH DESCRIPTION
+The GTK 3 interface for the ASUS ROG Claymore: an animated preview of the
+firmware effects, a per-key design editor, the sync server and a panel icon
+that keeps a design applied with the window closed.
+.PP
+It needs GTK 3 at run time and, unless it finds no keyboard, the same access to
+.I /dev/hidraw
+that
+.BR claymore (1)
+needs.
+.SH TABS
+.SS Effects
+A gallery of the firmware effects with a live preview, and speed, brightness,
+direction, random and colour controls. Applying an effect writes it to the
+keyboard's flash, which is what makes it stick; there is no way to display an
+effect without committing it, so nothing here is a preview-only setting.
+.SS Design your own
+Paint keys with the brush, copy a key's colour with the eyedropper, middle
+click to erase, fill everything or start from a rainbow. The first edit puts the
+design on the keyboard by itself and it stays there after the window closes;
+the keyboard keeps the last frame it is given, so nothing has to keep running.
+Unticking
+.I Show on keyboard
+hands the board back to its own effects.
+.PP
+Designs are saved under a name in
+.IR ~/.config/claymore/designs/ .
+.I Save
+overwrites the current one and
+.I "Save as..."
+names it.
+.I "Load at startup"
+marks one to be loaded every time the program starts, and it is the same design
+that
+.B "claymore paint --default"
+applies at login.
+.SS Sync
+Start the socket server and watch what arrives; see
+.BR "claymore syncd" .
+.SH OPTIONS
+.TP
+.B \-\-tray
+Start with the window hidden and only the panel icon shown, whatever the
+.BR start\-in\-tray
+setting says.
+.TP
+.B \-\-window
+Open the window even when
+.B start\-in\-tray
+is on.
+.TP
+.B \-\-no\-design
+Ignore the design marked as the startup design for this run.
+.TP
+.BI \-\-export-icons " directory"
+Write the icon out as PNGs at 16, 24, 32, 48, 64, 128 and 256 pixels and exit.
+It needs no display, and it is what
+.B make install
+uses, so the icon in the icon theme is the same drawing as the window and the
+panel icon rather than a second copy of it.
+.SH STARTING IN THE PANEL
+Turn on
+.I "Start in the panel"
+in the header, or run
+.EX
+claymore settings start-in-tray on
+.EE
+and the window stays away on every later start. That is the setting to enable
+before adding
+.B claymore-gui
+to your desktop's autostart: the design is applied at login and no window
+appears.
+.PP
+.B To panel
+in the header moves the window out of the way for now, keeping the program
+running, the design applied and the previews animating. The panel icon offers
+.I "Show the window"
+,
+.IR "Re-apply my design" ,
+.I "Hand the keyboard back"
+and
+.IR "Quit and keep the design" .
+.PP
+The panel icon is built on
+.IR GtkStatusIcon ,
+which needs a tray to attach to. On a desktop without one the window is left
+open instead of the program disappearing where it cannot be reached.
+.SH FILES
+See
+.BR claymore (1).
+.SH SEE ALSO
+.BR claymore (1)
+.SH AUTHOR
+rog-claymore-linux is free software under the GPL, version 2 or later. It is
+not affiliated with ASUSTeK.

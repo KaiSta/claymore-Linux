@@ -1,0 +1,20 @@
+Package: rog-claymore
+Version: 1.0.0
+Architecture: amd64
+Maintainer: kai <kai@Kai-Gaming>
+Section: utils
+Priority: optional
+Depends: libc6 (>= 2.34), libgtk-3-0t64 | libgtk-3-0
+Suggests: systemd
+Installed-Size: 1184
+Description: lighting control for the ASUS ROG Claymore on Linux
+ Effects, per-key designs and an Aura Sync style socket for the ASUS ROG
+ Claymore, without the vendor software.
+ .
+ The command line tool drives the keyboard directly through /dev/hidraw with
+ no dependencies beyond libc: firmware effects, per-key painting, saved
+ designs and a sync daemon. The GTK 3 interface adds an animated preview,
+ a design editor and a panel icon that keeps a design applied.
+ .
+ Everything it does was verified against a real Claymore; docs/PROTOCOL.md
+ records the packet format and the two undocumented quirks it depends on.

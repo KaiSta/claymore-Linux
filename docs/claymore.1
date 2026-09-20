@@ -1,0 +1,265 @@
+.\" rog-claymore-linux
+.\" SPDX-License-Identifier: GPL-2.0-or-later
+.TH CLAYMORE 1 "September 2026" "rog-claymore-linux 1.0.0" "User Commands"
+.SH NAME
+claymore \- lighting control for the ASUS ROG Claymore keyboard
+.SH SYNOPSIS
+.B claymore
+.I command
+[
+.IR options ...
+]
+.SH DESCRIPTION
+.B claymore
+drives the lighting of an ASUS ROG Claymore (USB 0b05:184d) from Linux, either
+through the built in firmware effects or frame by frame in direct mode.
+It talks to the keyboard through
+.I /dev/hidraw
+and depends on nothing beyond libc.
+.PP
+Run it without arguments, or with
+.BR help ,
+for the same list of commands as below.
+.SH DEVICE COMMANDS
+.TP
+.B list
+List every hidraw node and mark which one is the keyboard.
+.TP
+.B info
+Firmware version, which side the numpad is on, the key legends and the layout
+in use.
+.TP
+.B keys
+Every key, with its frame slot and its device LED index.
+.TP
+.B layout
+An ASCII map of the active layout. With
+.B --list
+it names the layout variants instead.
+.SH LIGHTING COMMANDS
+.TP
+.BI effect " name"
+Apply a firmware effect:
+.BR static ", " breathing ", " color-cycle ", " reactive ", " wave ", "
+.BR ripple ", " starry-night ", " quicksand ", " current " or " rain-drop .
+See
+.B "EFFECTS, SPEEDS AND BRIGHTNESS"
+below.
+.TP
+.BI preset " id"
+Apply one of the built in presets;
+.B presets
+lists them.
+.TP
+.BI static " colour"
+Shortcut for
+.BR "effect static" .
+.TP
+.B off
+Shortcut for
+.BR "static black" .
+.TP
+.B paint
+Compose
+.I one
+frame in direct mode, in a single session, which is what makes per-key work
+possible at all: each command line invocation is a separate process, and
+granting direct mode twice leaves only the second frame lit. Options may be
+combined freely:
+.RS
+.TP
+.BI \-\-all " colour"
+Fill every key.
+.TP
+.BI \-\-key " name=colour"
+Repaint one key; repeat for as many keys as you like.
+.TP
+.BI \-\-design " file"
+Load a design saved by the graphical interface.
+.TP
+.B \-\-default
+Load the design marked as the startup design.
+.RE
+.TP
+.BI set " slot|key colour"
+Repaint a single key. Blanks every other key, so use
+.B paint
+for anything more than one key.
+.TP
+.BI fill " colour"
+Paint the whole board in direct mode.
+.TP
+.B release
+Hand the keyboard back to its own firmware effects.
+.TP
+.B reset
+Release, then apply a firmware effect.
+.TP
+.BI preview " effect"
+Animate an effect in the terminal. Needs no keyboard.
+.SH DESIGN COMMANDS
+.TP
+.B designs
+List saved designs, marking the one applied at login.
+.TP
+.BI default " name"
+Choose the design a login should apply, or
+.B none
+to stop doing so.
+.SH PREFERENCES
+.TP
+.B settings
+List the preferences shared with the graphical interface.
+.TP
+.BI settings " name value"
+Change one. The only setting with a meaning of its own is
+.BR start-in-tray ,
+which the graphical interface reads at launch:
+.RS
+.PP
+.EX
+claymore settings start-in-tray on
+.EE
+.RE
+.PP
+With it on, the window stays away and only the panel icon appears, which is
+what an autostart entry wants.
+.B claymore-gui --window
+opens a window anyway for one run.
+.SH SYNC DAEMON
+.TP
+.B syncd
+Hold the keyboard in direct mode and let any process stream frames over a UNIX
+datagram socket, the Linux stand in for Aura Sync. Options:
+.BR \-\-socket " path,"
+.BR \-\-fps " n,"
+.BR \-\-demo ","
+.BR \-\-stdin ","
+.BR \-\-idle-effect " name,"
+.BR \-\-idle-timeout " ms."
+.SH COMMON OPTIONS
+.TP
+.BI \-\-color " RRGGBB|name"
+Add a colour; repeatable. The name
+.B off
+means black.
+.TP
+.B \-\-random
+Let the firmware pick colours at random.
+.TP
+.BI \-\-speed " 0-100"
+Animation speed, 100 being fastest. Each effect starts at the speed ASUS ships
+for it.
+.TP
+.BI \-\-brightness " 0-3"
+Firmware light level. Experimental: the byte is undocumented.
+.TP
+.BI \-\-direction " lr|rl|up|down"
+Direction for the effects that have one.
+.TP
+.BI \-\-device " path"
+Use a particular hidraw node instead of detecting one.
+.TP
+.BI \-\-vid " hex" " \fR,\fP " \-\-pid " hex"
+Match different USB identifiers.
+.TP
+.BI \-\-interface " n"
+HID interface number; the default, 1, is where the Claymore keeps its lighting
+control collection.
+.TP
+.BI \-\-usage-page " hex"
+HID usage page; the default is 0xff00.
+.TP
+.BI \-\-layout " id"
+Force a layout variant;
+.B "layout \-\-list"
+names them.
+.TP
+.BI \-\-region " us|uk"
+Override the detected key legends.
+.TP
+.BI \-\-numpad " none|left|right"
+Override the detected numpad side.
+.TP
+.BI \-\-ack-timeout " ms"
+How long to wait for the keyboard to acknowledge a report. The default, 20, is
+plenty for effects; streaming direct mode frames needs a much shorter one,
+which
+.B syncd
+sets for itself.
+.TP
+.B \-\-quiet
+Suppress progress messages.
+.SH EFFECTS, SPEEDS AND BRIGHTNESS
+A colour effect needs at least one
+.BR \-\-color .
+Effects without a direction ignore
+.BR \-\-direction ,
+and static ignores
+.BR \-\-speed .
+.PP
+Speed is linear in the firmware byte, and the fastest end is 0, so the two
+scales run in opposite directions; the percentages shown are converted before
+they are sent.
+.SH STORING EFFECTS
+The keyboard needs the 0x50 0x55 commit packet to display an effect at all:
+without it the board flashes the new effect and then reverts to the previous
+one. Every effect change is therefore stored in the keyboard's flash, and
+.B \-\-no-save
+is accepted but ignored. See
+.IR docs/PROTOCOL.md
+for why.
+.SH DESIGNS
+A painted design is not an effect, and the keyboard cannot store one: its flash
+holds built in effects only. What it does do is keep the last frame it is
+given, so
+.B paint
+leaves the design on the board without revoking remote control, and it stays
+lit with nothing running.
+.B release
+hands the board back.
+.PP
+A design lives in
+.RI ~/.config/claymore/designs/ name .txt
+as one
+.I "slot colour"
+line per key, so it is diffable, hand editable and scriptable. The design to
+apply at login is recorded in
+.IR ~/.config/claymore/default-design ,
+which
+.B "claymore paint --default"
+reads.
+.SH FILES
+.TP
+.I ~/.config/claymore/settings
+Preferences, one
+.I "name value"
+per line.
+.TP
+.I ~/.config/claymore/designs/
+Saved designs.
+.TP
+.I ~/.config/claymore/default-design
+The design name to apply at login.
+.TP
+.I /usr/share/udev/rules.d/99-rog-claymore.rules
+Installed by the package; grants members of
+.B plugdev
+access to the hidraw node so the tool can run without root.
+.SH EXIT STATUS
+0 on success, 1 on failure, with a message on standard error.
+.SH EXAMPLES
+.EX
+claymore info
+claymore effect wave --color ff003c --color 00c8ff --direction left
+claymore paint --all 002060 --key escape=ff003c
+claymore paint --default
+claymore release
+.EE
+.SH SEE ALSO
+.BR claymore-gui (1),
+.I /usr/share/doc/rog-claymore/PROTOCOL.md
+.SH AUTHOR
+rog-claymore-linux is free software under the GPL, version 2 or later. It is
+not affiliated with ASUSTeK; "Republic of Gamers" and "Aura" are their
+trademarks, and the protocol was worked out from OpenRGB's implementation.

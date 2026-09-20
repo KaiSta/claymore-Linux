@@ -1,0 +1,33 @@
+[claymore-gui] ROG Red: Signature Republic of Gamers red, held steady.
+[claymore-gui] loaded the startup design 'redspots'
+[claymore-gui] your design is on the keyboard, and it stays there when you close this window (untick 'Show on keyboard' to hand the keyboard back)
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 16x16 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 24x24 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 32x32 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 48x48 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 64x64 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 96x96 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 128x128 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 192x192 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 256x256 of theme hicolor has no size field
+
+
+(claymore-gui:10447): Gtk-WARNING **: 13:46:44.388: Theme directory 512x512 of theme hicolor has no size field
+

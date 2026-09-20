@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- rog-claymore-linux : the keyboard panel, window and launcher icon.
+
+     The same emblem is drawn at runtime with cairo (gui/icon.cpp), so nothing
+     has to be installed for the window and panel icons to work. This file is
+     for the desktop entry, the launcher and the package, and it is generated
+     from the same geometry: the eye is one lens, and the two gaps painted in
+     the plate colour turn it into three tapered stripes.
+
+     It is an emblem in the Republic of Gamers idiom, in ROG red, drawn from
+     scratch - not ASUS artwork. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>ROG Claymore</title>
+  <rect width="512" height="512" rx="112.64" ry="112.64" fill="#121217"/>
+  <g fill="#ff003d">
+    <path d="M20.48 327.68C119.27 94.24 279.43 45.50 491.52 184.32C392.73 417.76 232.57 466.50 20.48 327.68Z"/>
+  </g>
+  <g fill="#121217">
+    <path d="M31.48 270.81C165.05 213.03 307.59 169.65 450.71 143.22C317.13 201.00 174.59 244.38 31.48 270.81Z"/>
+    <path d="M61.29 368.78C194.87 311.00 337.41 267.62 480.52 241.19C346.95 298.97 204.41 342.35 61.29 368.78Z"/>
+  </g>
+</svg>

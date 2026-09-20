@@ -1,0 +1,52 @@
+[Unit]
+Description=Apply a saved ROG Claymore design at login
+Documentation=man:claymore(1)
+Documentation=file:%h/.config/claymore/designs
+# The keyboard is a USB device, so wait for the session to be up first.
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+# One shot: the keyboard keeps the last frame it is given, so nothing has to
+# stay running for the design to stay lit. That is the whole reason this is a
+# unit and not a daemon.
+Type=oneshot
+RemainAfterExit=no
+
+# 'make install' puts both this file and the binary where they belong, and the
+# package installs this unit to /usr/lib/systemd/user, so enabling it needs no
+# copying and no editing:
+#
+#     systemctl --user enable --now claymore-design.service
+#
+# From a source checkout instead, copy this file to
+# ~/.config/systemd/user/ and the binary needs to be somewhere PATH reaches -
+# the sh below adds the two usual places, and a user unit gets
+# /usr/local/bin:/usr/bin:/bin by default.
+#
+# --default reads the design the GUI marked as "Load at startup", so there is
+# no path or design name to keep in sync here. Choose that design in the GUI,
+# or with 'claymore default <name>'; 'claymore designs' lists what you have.
+#
+# The retry loop is deliberate. At login the hidraw node may not exist for
+# another second or two, and a design that silently fails to apply is worse
+# than one applied a moment late. Drop --quiet if you would rather see it in
+# journalctl:
+#
+#     journalctl --user -u claymore-design.service
+ExecStart=/bin/sh -c '\
+    PATH="$PATH:$HOME/.local/bin:/usr/local/bin"; \
+    for i in $(seq 1 30); do \
+      claymore paint --default --quiet && exit 0; \
+      sleep 1; \
+    done; \
+    echo "claymore not found or the keyboard is not there yet" >&2; exit 1'
+
+# To hand the keyboard back to its own effects:
+#
+#     systemctl --user stop claymore-design.service   # stops applying it at login
+#     claymore release                                # hands the board back now
+TimeoutStopSec=5
+
+[Install]
+WantedBy=default.target

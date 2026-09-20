@@ -1,0 +1,15 @@
+975e9d70e8132d8c7fc41882de89de8a  usr/bin/claymore
+2d259cbc97e92b2ba89c92898614f0a8  usr/bin/claymore-gui
+bfe50019c4873019c645ebff230f3f00  usr/lib/systemd/user/claymore-design.service
+7499c975835ec22bcb25e460c16430d6  usr/lib/udev/rules.d/99-rog-claymore.rules
+d5f9b080b20d9c53f8801582502c04e7  usr/share/applications/org.claymore.linux.desktop
+d739863d82b140323a697214c076d5e8  usr/share/icons/hicolor/128x128/apps/rog-claymore.png
+e2ae1038c59af3b972f4cddb843c56e8  usr/share/icons/hicolor/16x16/apps/rog-claymore.png
+909ac4345e36c47c70f526199eaa3a55  usr/share/icons/hicolor/24x24/apps/rog-claymore.png
+eb8865f2555cc776192bce14855b7250  usr/share/icons/hicolor/256x256/apps/rog-claymore.png
+a3b225a9a3790f4c65d36dcf7ad3ec7c  usr/share/icons/hicolor/32x32/apps/rog-claymore.png
+f32669b408fc7ad4244177a53e863be5  usr/share/icons/hicolor/48x48/apps/rog-claymore.png
+9f91a34b9f3605c06754f56f9e302415  usr/share/icons/hicolor/64x64/apps/rog-claymore.png
+df9870b19a31c8bc49ee584d139e9f7c  usr/share/icons/hicolor/scalable/apps/rog-claymore.svg
+97e080e63c01e2aef16066187fdefd30  usr/share/man/man1/claymore.1.gz
+68bc6fbd8e15755b1fd4623edddf6f8a  usr/share/man/man1/claymore-gui.1.gz
