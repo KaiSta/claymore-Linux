@@ -14,9 +14,47 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <unistd.h>
 
 namespace claymore
 {
+    namespace
+    {
+        bool write_text_atomic(const std::string& path, const std::string& text,
+                               std::string& error)
+        {
+            const std::filesystem::path target(path);
+            const std::string temporary = path + ".tmp." + std::to_string(::getpid());
+
+            std::ofstream out(temporary, std::ios::trunc);
+            if(!out)
+            {
+                error = "cannot write " + temporary;
+                return false;
+            }
+            out << text;
+            out.close();
+            if(!out)
+            {
+                error = "failed while writing " + temporary;
+                std::error_code ignored;
+                std::filesystem::remove(temporary, ignored);
+                return false;
+            }
+
+            std::error_code rename_error;
+            std::filesystem::rename(temporary, target, rename_error);
+            if(rename_error)
+            {
+                error = "cannot replace " + path + ": " + rename_error.message();
+                std::error_code ignored;
+                std::filesystem::remove(temporary, ignored);
+                return false;
+            }
+            return true;
+        }
+    }
+
     std::string format_design(const Frame& design, const std::string& layout_id)
     {
         std::ostringstream out;
@@ -133,29 +171,18 @@ namespace claymore
         }
 
         std::error_code ignored;
-
         const std::filesystem::path target(path);
         if(target.has_parent_path())
         {
             std::filesystem::create_directories(target.parent_path(), ignored);
+            if(ignored)
+            {
+                error = "cannot create " + target.parent_path().string() + ": " + ignored.message();
+                return false;
+            }
         }
 
-        std::ofstream out(path);
-        if(!out)
-        {
-            error = "cannot write " + path;
-            return false;
-        }
-
-        out << format_design(design, layout_id);
-
-        if(!out)
-        {
-            error = "failed while writing " + path;
-            return false;
-        }
-
-        return true;
+        return write_text_atomic(path, format_design(design, layout_id), error);
     }
 
     /*=================================================================*\
@@ -350,22 +377,7 @@ namespace claymore
             return false;
         }
 
-        std::ofstream out(path);
-        if(!out)
-        {
-            error = "cannot write " + path;
-            return false;
-        }
-
-        out << safe << "\n";
-
-        if(!out)
-        {
-            error = "failed while writing " + path;
-            return false;
-        }
-
-        return true;
+        return write_text_atomic(path, safe + "\n", error);
     }
 
     bool load_default_design(Frame& frame, std::string& name, std::string& error)

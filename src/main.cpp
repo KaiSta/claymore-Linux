@@ -13,6 +13,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cerrno>
+#include <climits>
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -180,9 +183,15 @@ EXAMPLES
 
     bool parse_u16(const std::string& text, std::uint16_t& out)
     {
+        if(text.empty() || text.front() == '-')
+        {
+            return false;
+        }
+
+        errno = 0;
         char* end = nullptr;
-        const long value = std::strtol(text.c_str(), &end, 0);
-        if(end == text.c_str() || *end != '\0' || value < 0 || value > 0xFFFF)
+        const unsigned long value = std::strtoul(text.c_str(), &end, 0);
+        if(errno == ERANGE || end == text.c_str() || *end != '\0' || value > 0xFFFF)
         {
             return false;
         }
@@ -192,9 +201,16 @@ EXAMPLES
 
     bool parse_int(const std::string& text, int& out)
     {
+        if(text.empty())
+        {
+            return false;
+        }
+
+        errno = 0;
         char* end = nullptr;
         const long value = std::strtol(text.c_str(), &end, 0);
-        if(end == text.c_str() || *end != '\0')
+        if(errno == ERANGE || end == text.c_str() || *end != '\0' ||
+           value < INT_MIN || value > INT_MAX)
         {
             return false;
         }
@@ -352,9 +368,10 @@ EXAMPLES
             }
             else if(name == "--speed")
             {
-                if(!parse_int(value, options.speed_percent))
+                if(!parse_int(value, options.speed_percent) ||
+                   options.speed_percent < 0 || options.speed_percent > 100)
                 {
-                    fail("--speed needs a number");
+                    fail("--speed must be between 0 and 100");
                 }
                 options.speed_set = true;
             }
@@ -433,7 +450,8 @@ EXAMPLES
             }
             else if(name == "--ack-timeout")
             {
-                if(!parse_int(value, options.ack_timeout)) fail("--ack-timeout needs a number");
+                if(!parse_int(value, options.ack_timeout) || options.ack_timeout < 0)
+                    fail("--ack-timeout must be zero or greater");
             }
             else if(name == "--strict")
             {
@@ -453,13 +471,16 @@ EXAMPLES
             }
             else if(name == "--idle-timeout")
             {
-                if(!parse_int(value, options.idle_timeout)) fail("--idle-timeout needs a number");
+                if(!parse_int(value, options.idle_timeout) || options.idle_timeout < 0)
+                    fail("--idle-timeout must be zero or greater");
             }
             else if(name == "--seconds")
             {
                 char* end = nullptr;
                 options.seconds = std::strtod(value.c_str(), &end);
-                if(end == value.c_str() || *end != '\0') fail("--seconds needs a number");
+                if(end == value.c_str() || *end != '\0' ||
+                   !std::isfinite(options.seconds) || options.seconds < 0.0)
+                    fail("--seconds must be a finite non-negative number");
             }
             else if(name == "--frame")
             {
@@ -862,6 +883,7 @@ EXAMPLES
     int command_set(const Options& options, const std::string& target, const Rgb& color)
     {
         std::unique_ptr<ClaymoreDevice> device = connect_device(options);
+        device->set_release_on_destroy(true);
         const LayoutVariant& variant = device->layout();
         const int slot = resolve_slot(variant, target);
 
@@ -884,6 +906,7 @@ EXAMPLES
     int command_fill(const Options& options, const Rgb& color)
     {
         std::unique_ptr<ClaymoreDevice> device = connect_device(options);
+        device->set_release_on_destroy(true);
         const Frame frame(static_cast<std::size_t>(device->layout().key_count), color);
 
         std::string error;
@@ -1314,6 +1337,7 @@ EXAMPLES
     int command_syncd(const Options& options)
     {
         std::unique_ptr<ClaymoreDevice> device = connect_device(options);
+        device->set_release_on_destroy(true);
         const LayoutVariant& variant = device->layout();
 
         const std::string socket_path = options.socket_path.empty()

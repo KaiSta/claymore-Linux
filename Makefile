@@ -81,7 +81,7 @@ GUI_SRC := \
 GUI_OBJ := $(GUI_SRC:%.cpp=$(BUILD)/%.o)
 
 .PHONY: all cli gui test check clean run help install uninstall package \
-        verify-gui verify-design verify-install
+        verify-docs verify-gui verify-design verify-install
 
 all: cli $(if $(GUI_AVAILABLE),gui,) test
 
@@ -112,6 +112,10 @@ $(BUILD)/tests/run_tests: $(CORE_OBJ) $(TEST_OBJ)
 
 test: $(BUILD)/tests/run_tests
 	@$(BUILD)/tests/run_tests
+
+# Keep the agent-facing map and its Makefile references honest.
+verify-docs:
+	@tools/verify_code_map.py
 
 # The keyboard canvas cannot be unit tested, so photograph the running window
 # and check that it really painted keys. Needs an X server; see the script.
@@ -209,6 +213,7 @@ help:
 	@echo "make install    - install into PREFIX (/usr/local); DESTDIR stages it"
 	@echo "make uninstall  - remove an installation, keeping your designs"
 	@echo "make package    - build a .deb with dpkg-deb, no debhelper needed"
+	@echo "make verify-docs     - validate the agent code map and Makefile references"
 	@echo "make verify-gui     - launch the GUI, photograph it and check it painted"
 	@echo "make verify-design  - drive the design tab and check that clicks paint"
 	@echo "make verify-install - stage an install and check every file in it"

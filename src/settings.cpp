@@ -13,10 +13,48 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <unistd.h>
 #include <unordered_map>
 
 namespace claymore
 {
+    namespace
+    {
+        bool write_text_atomic(const std::string& path, const std::string& text,
+                               std::string& error)
+        {
+            const std::filesystem::path target(path);
+            const std::string temporary = path + ".tmp." + std::to_string(::getpid());
+
+            std::ofstream out(temporary, std::ios::trunc);
+            if(!out)
+            {
+                error = "cannot write " + temporary;
+                return false;
+            }
+            out << text;
+            out.close();
+            if(!out)
+            {
+                error = "failed while writing " + temporary;
+                std::error_code ignored;
+                std::filesystem::remove(temporary, ignored);
+                return false;
+            }
+
+            std::error_code rename_error;
+            std::filesystem::rename(temporary, target, rename_error);
+            if(rename_error)
+            {
+                error = "cannot replace " + path + ": " + rename_error.message();
+                std::error_code ignored;
+                std::filesystem::remove(temporary, ignored);
+                return false;
+            }
+            return true;
+        }
+    }
+
     std::string config_dir()
     {
         /*-----------------------------------------------------*\
@@ -149,16 +187,13 @@ namespace claymore
 
         std::error_code ignored;
         std::filesystem::create_directories(config_dir(), ignored);
-
-        const std::string path = settings_path();
-
-        std::ofstream out(path);
-        if(!out)
+        if(ignored)
         {
-            error = "cannot write " + path;
+            error = "cannot create " + config_dir() + ": " + ignored.message();
             return false;
         }
 
+        std::ostringstream out;
         out << "# rog-claymore-linux settings\n";
         out << "# key value - one per line; '#' starts a comment\n";
 
@@ -171,13 +206,7 @@ namespace claymore
             out << entry.first << " " << entry.second << "\n";
         }
 
-        if(!out)
-        {
-            error = "failed while writing " + path;
-            return false;
-        }
-
-        return true;
+        return write_text_atomic(settings_path(), out.str(), error);
     }
 
     bool setting_get_bool(const std::string& key, bool fallback)

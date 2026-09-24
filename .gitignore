@@ -1,0 +1,10 @@
+# Generated build and package output
+/build/
+/bin/
+
+# Local editor and OS noise
+*.swp
+*~
+.DS_Store
+__pycache__/
+*.py[cod]

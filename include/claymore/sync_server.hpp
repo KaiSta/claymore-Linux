@@ -19,7 +19,7 @@
 |     offset 8   payload                                     |
 |                                                           |
 |   Dense payload  : count * 3 bytes, one RGB per frame slot |
-|   Sparse payload : count * 4 bytes, slot then RGB          |
+|     Sparse payload : count * 4 bytes, uint8 slot then RGB   |
 |                                                           |
 |   A "release" datagram has no payload and asks the daemon  |
 |   to stop driving the keyboard so the firmware effect can  |
@@ -57,6 +57,7 @@ namespace claymore
 
     constexpr std::size_t SYNC_HEADER_LENGTH = 8;
     constexpr std::uint8_t SYNC_VERSION      = 1;
+    constexpr int          SYNC_MAX_SLOT     = 255;
 
     std::vector<std::uint8_t> sync_encode(const SyncMessage& message);
     bool                      sync_decode(const std::uint8_t* data, std::size_t length,

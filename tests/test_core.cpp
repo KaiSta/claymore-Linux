@@ -16,6 +16,7 @@
 #include <fstream>
 #include <set>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 #include "claymore/design.hpp"
@@ -1279,6 +1280,10 @@ namespace
             check_eq(decoded.updates[0].slot, 7, "sparse slot survives");
             check_eq(decoded.updates[1].slot, 42, "sparse slot survives");
             check(decoded.updates[0].color == Rgb(0xAA, 0xBB, 0xCC), "sparse colour survives");
+
+            message.updates.push_back(SyncUpdate{ 256, Rgb(1, 2, 3) });
+            check(sync_encode(message).empty(),
+                  "sparse slots above the uint8 wire limit are rejected");
         }
 
         {
@@ -1330,6 +1335,26 @@ namespace
         }
 
         check(!default_socket_path().empty(), "default socket path is not empty");
+
+        {
+            const std::string path = "/tmp/claymore-sync-lifecycle-test.sock";
+            std::error_code ignored;
+            std::filesystem::remove(path, ignored);
+
+            std::string error;
+            auto first = SyncServer::create(path, 8, error);
+            check(first != nullptr, "sync server can bind a socket");
+            if(first)
+            {
+                auto second = SyncServer::create(path, 8, error);
+                check(second == nullptr, "a live sync socket is not replaced");
+                check(error.find("already in use") != std::string::npos,
+                      "the live-socket error is explicit: " + error);
+                first.reset();
+                check(!std::filesystem::exists(path),
+                      "sync server removes its socket on destruction");
+            }
+        }
     }
 
     /*---------------------------------------------------------*\

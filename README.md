@@ -466,6 +466,7 @@ message so the firmware effect resumes.
 ```sh
 make test           # hardware-free checks: packets, layouts, canvas geometry,
                     #   design files, the design store, the settings file
+make verify-docs    # validate AGENTS.md, the code map, and Makefile references
 make verify-gui     # launches the GUI, photographs it, checks it painted
 make verify-design  # drives the design tab with real clicks, saves a design,
                     #   restarts, and checks the panel icon keeps the design
@@ -497,6 +498,11 @@ Neither is a unit test: they drive the running window through X11 and AT-SPI.
 widget over the accessibility bus with its screen coordinates, so a test can
 find the button labelled *Fill all* and click it instead of guessing at pixels.
 The captures are left in `build/` so you can look at them yourself.
+
+For coding agents, read [`AGENTS.md`](AGENTS.md) and use the canonical
+[`docs/code-map.md`](docs/code-map.md) before broad repository searches. Cline
+loads the small adapter in `.clinerules/code-map.md`; skill-aware tools can use
+`skills/code-map/SKILL.md`. The map is checked with `make verify-docs`.
 
 The canvas arithmetic itself (which key is under a click, and how close a click
 has to be) lives in `layout.cpp` rather than the GUI, precisely so that it *can*

@@ -12,6 +12,8 @@
 #include <climits>
 #include <cstdio>
 #include <cstdlib>
+#include <cerrno>
+#include <limits>
 #include <cstring>
 #include <dirent.h>
 #include <fcntl.h>
@@ -70,9 +72,11 @@ namespace claymore
             {
                 return std::nullopt;
             }
+            errno = 0;
             char*      end   = nullptr;
-            const long value = std::strtol(text->c_str(), &end, 16);
-            if(end == text->c_str())
+            const unsigned long value = std::strtoul(text->c_str(), &end, 16);
+            if(errno == ERANGE || end == text->c_str() || *end != '\0' ||
+               value > std::numeric_limits<std::uint32_t>::max())
             {
                 return std::nullopt;
             }

@@ -584,6 +584,7 @@ namespace claymore
                 | the board now, so it counts as an edit and      |
                 | cancels any effect apply that is still queued.  |
                 \*---------------------------------------------*/
+                app->device->set_release_on_destroy(false);
                 app->design_edited = true;
                 app->apply_due     = -1.0;
                 set_status(*app, "streaming your design in direct mode");
@@ -1002,6 +1003,12 @@ namespace claymore
                 {
                     app->sync.reset();
                     app->sync_running = false;
+                    if(app->device != nullptr)
+                    {
+                        std::string release_error;
+                        app->device->set_release_on_destroy(false);
+                        (void)app->device->release(release_error);
+                    }
                     set_status(*app, "sync server stopped");
                     if(app->sync_button != nullptr)
                     {
@@ -1023,6 +1030,7 @@ namespace claymore
                 }
 
                 std::string error;
+                app->device->set_release_on_destroy(true);
                 app->sync = SyncServer::create(app->socket_path, app->layout->key_count, error);
 
                 if(app->sync == nullptr)

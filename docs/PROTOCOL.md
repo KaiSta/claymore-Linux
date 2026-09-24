@@ -279,7 +279,7 @@ offset 8   payload
 ```
 
 * Dense payload: `count * 3` bytes, one RGB per frame slot starting at slot 0.
-* Sparse payload: `count * 4` bytes, each entry a slot byte followed by RGB.
+* Sparse payload: `count * 4` bytes, each entry a uint8 slot byte followed by RGB. Sparse slots are therefore limited to 0..255; the encoder rejects larger values rather than truncating them.
 * A `release` message has no payload and asks the daemon to stop driving the
   keyboard so the firmware effect can resume.
 

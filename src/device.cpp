@@ -200,7 +200,14 @@ namespace claymore
         return device;
     }
 
-    ClaymoreDevice::~ClaymoreDevice() = default;
+    ClaymoreDevice::~ClaymoreDevice()
+    {
+        if(release_on_destroy && direct_active && transport)
+        {
+            std::string ignored;
+            (void)release(ignored);
+        }
+    }
 
     void ClaymoreDevice::set_ack_timeout_ms(int milliseconds)
     {
@@ -379,12 +386,15 @@ namespace claymore
             return false;
         }
 
+        direct_active = true;
         if(!send_and_await(protocol::allow_remote_control(protocol::RemoteControl::GrantDirect), error))
         {
+            std::string release_error;
+            (void)release(release_error);
             return false;
         }
 
-        direct_active = true;
+
         return true;
     }
 
@@ -470,8 +480,18 @@ namespace claymore
 
     bool ClaymoreDevice::release(std::string& error)
     {
-        direct_active = false;
-        return send_and_await(protocol::allow_remote_control(protocol::RemoteControl::Revoke), error);
+        if(!direct_active)
+        {
+            return true;
+        }
+
+        const bool sent = send_and_await(
+            protocol::allow_remote_control(protocol::RemoteControl::Revoke), error);
+        if(sent)
+        {
+            direct_active = false;
+        }
+        return sent;
     }
 
     bool ClaymoreDevice::save(std::string& error)

@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cerrno>
 #include <sstream>
 
 namespace claymore
@@ -188,8 +189,11 @@ namespace claymore
         \*-----------------------------------------------------*/
         {
             char*        end   = nullptr;
+            errno = 0;
             const long   value = std::strtol(query.c_str(), &end, 0);
-            const bool   plain = !query.empty() && end != nullptr && *end == '\0';
+            const bool   plain = !query.empty() && errno != ERANGE &&
+                                 end != nullptr && *end == '\0' &&
+                                 value >= 0 && value <= 0xFF;
             const bool   dec   = plain &&
                                  std::all_of(query.begin(), query.end(), [](unsigned char c)
                                  {

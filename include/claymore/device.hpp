@@ -130,6 +130,16 @@ namespace claymore
         bool release(std::string& error);
 
         /*-----------------------------------------------------*\
+        | Best-effort release when the object is destroyed.      |
+        |                                                       |
+        | This is opt-in because `paint` intentionally leaves  |
+        | the final frame in place. Daemon/ordinary direct-mode  |
+        | callers should enable it; the GUI design mode should   |
+        | leave it disabled.                                    |
+        \*-----------------------------------------------------*/
+        void set_release_on_destroy(bool enabled) { release_on_destroy = enabled; }
+
+        /*-----------------------------------------------------*\
         | How long to wait for the keyboard to acknowledge a      |
         | report. The reference implementation uses 20 ms; lower |
         | it to raise the achievable frame rate in direct mode.  |
@@ -154,6 +164,7 @@ namespace claymore
         DeviceStatus                  device_status;
         const LayoutVariant*          active_layout = nullptr;
         bool                          direct_active = false;
+        bool                          release_on_destroy = false;
         int                           ack_timeout_ms = 20;
     };
 
