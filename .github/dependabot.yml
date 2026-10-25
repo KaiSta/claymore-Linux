@@ -1,11 +1,32 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
+# Dependency updates for the things this repository pins itself.
+#
+# The only ecosystem here is GitHub Actions: release.yml pins checkout,
+# upload-artifact, download-artifact and setup-qemu by tag, and those tags are
+# what Dependabot can bump. Everything else the build needs is Ubuntu's own
+# packaging (build-essential, libgtk-3-dev, dpkg-dev) installed inside the
+# container in .github/ci/build-deb.sh, and the ubuntu:24.04 image tag in
+# release.yml. Dependabot has no ecosystem for either, so those are moved by
+# hand when a new Ubuntu base is wanted.
+#
+# release.yml only runs on version tags and manual dispatch, so a bump pull
+# request is not exercised by CI. Before merging one, run the workflow manually
+# (workflow_dispatch) to build both packages with the new action versions.
+#
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: github-actions
+    directory: "/"
     schedule:
-      interval: "weekly"
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    groups:
+      # Four actions in one four-step workflow: one pull request a week that
+      # bumps them together beats four separate ones to review and verify.
+      github-actions:
+        patterns:
+          - "*"

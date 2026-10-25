@@ -123,6 +123,11 @@ not what `VERSION` says, runs the test suite, builds the `.deb` for `amd64` and
 to the GitHub release for the tag. Running the workflow by hand does the same build
 and stops at the artifacts.
 
+The actions that workflow uses are bumped by Dependabot (`.github/dependabot.yml`),
+weekly and as one grouped pull request. Because the workflow only runs on tags, a
+bump pull request gets no CI: run the workflow manually before merging it, so both
+packages are built once with the new versions.
+
 ## Regenerating the layout tables
 
 `src/layout_data.cpp` is generated, not hand written:
