@@ -25,7 +25,7 @@ jobs:
       tag: ${{ steps.resolve.outputs.tag }}
       publish: ${{ steps.resolve.outputs.publish }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Resolve the version to build
         id: resolve
@@ -78,14 +78,14 @@ jobs:
           - arch: arm64
             platform: linux/arm64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Each package is built and tested by Ubuntu of its own architecture in a
       # container, so arm64 is compiled by an arm64 compiler rather than a
       # cross-compiler that could link the GUI against the wrong GTK.
       - name: Register qemu for arm64
         if: matrix.arch == 'arm64'
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64
 
@@ -107,7 +107,7 @@ jobs:
               ubuntu:24.04 \
               bash .github/ci/build-deb.sh
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: deb-${{ matrix.arch }}
           path: build/claymore-linux_${{ needs.version.outputs.version }}_${{ matrix.arch }}.deb
@@ -124,7 +124,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: deb-*
           merge-multiple: true
