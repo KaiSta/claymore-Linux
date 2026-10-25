@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | icon.cpp - the ROG emblem                                 |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
@@ -35,7 +35,7 @@ namespace claymore
             | Beziers, and the straight bits are degenerate  |
             | cubics whose control points sit on the chord.  |
             |                                                |
-            | assets/rog-claymore.svg holds the very same    |
+            | assets/claymore-linux.svg holds the very same  |
             | numbers, so 'make verify-install' fails if the |
             | two ever drift apart.                          |
             \*------------------------------------------------*/

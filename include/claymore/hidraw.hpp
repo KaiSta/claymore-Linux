@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | hidraw.hpp - minimal Linux hidraw transport               |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 |                                                           |
 |   Deliberately dependency free: no hidapi, no libusb, no  |

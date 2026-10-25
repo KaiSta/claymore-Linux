@@ -90,13 +90,13 @@ GUI_PID=$!
 
 WID=""
 for _ in $(seq 1 40); do
-    WID=$(xdotool search --name "^ROG Claymore$" 2>/dev/null | head -1)
+    WID=$(xdotool search --name "^Claymore@Linux$" 2>/dev/null | head -1)
     [ -n "$WID" ] && break
     sleep 0.25
 done
 
 if [ -z "$WID" ]; then
-    echo "FAIL: no 'ROG Claymore' window appeared" >&2
+    echo "FAIL: no 'Claymore@Linux' window appeared" >&2
     tail -20 "$LOG" >&2
     exit 1
 fi
@@ -264,7 +264,7 @@ if [ "$DEVICE_PRESENT" = "yes" ]; then
     # Close the window the way a user does, through the window manager. A
     # signal would skip the shutdown path that decides who owns the board,
     # which is the code under test here.
-    wmctrl -c "ROG Claymore" 2>/dev/null
+    wmctrl -c "Claymore@Linux" 2>/dev/null
 
     for _ in $(seq 1 20); do
         kill -0 "$GUI_PID" 2>/dev/null || break
@@ -305,7 +305,7 @@ GUI_PID=$!
 
 WID=""
 for _ in $(seq 1 40); do
-    WID=$(xdotool search --name "^ROG Claymore$" 2>/dev/null | head -1)
+    WID=$(xdotool search --name "^Claymore@Linux$" 2>/dev/null | head -1)
     [ -n "$WID" ] && break
     sleep 0.25
 done
@@ -380,7 +380,7 @@ GUI_PID=$!
 
 WID=""
 for _ in $(seq 1 40); do
-    WID=$(xdotool search --name "^ROG Claymore$" 2>/dev/null | head -1)
+    WID=$(xdotool search --name "^Claymore@Linux$" 2>/dev/null | head -1)
     [ -n "$WID" ] && break
     sleep 0.25
 done
@@ -414,7 +414,7 @@ else
         echo "  it is running with no arguments"
     fi
 
-    HIDDEN_WID=$(xdotool search --name "^ROG Claymore$" 2>/dev/null | head -1)
+    HIDDEN_WID=$(xdotool search --name "^Claymore@Linux$" 2>/dev/null | head -1)
     if [ -n "$HIDDEN_WID" ]; then
         STATE=$(xwininfo -id "$HIDDEN_WID" 2>/dev/null | grep -i "map state" || echo "")
         case "$STATE" in
@@ -433,7 +433,7 @@ else
 
     WID=""
     for _ in $(seq 1 40); do
-        WID=$(xdotool search --name "^ROG Claymore$" 2>/dev/null | head -1)
+        WID=$(xdotool search --name "^Claymore@Linux$" 2>/dev/null | head -1)
         [ -n "$WID" ] && break
         sleep 0.25
     done

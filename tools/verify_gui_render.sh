@@ -50,13 +50,13 @@ GUI_PID=$!
 # second or two. Wait for the window rather than sleeping a fixed amount.
 WID=""
 for _ in $(seq 1 40); do
-    WID=$(xdotool search --name "^ROG Claymore$" 2>/dev/null | head -1)
+    WID=$(xdotool search --name "^Claymore@Linux$" 2>/dev/null | head -1)
     [ -n "$WID" ] && break
     sleep 0.25
 done
 
 if [ -z "$WID" ]; then
-    echo "FAIL: no 'ROG Claymore' window appeared" >&2
+    echo "FAIL: no 'Claymore@Linux' window appeared" >&2
     tail -20 "$LOG" >&2
     exit 1
 fi

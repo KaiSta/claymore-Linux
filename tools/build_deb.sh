@@ -2,7 +2,7 @@
 # --------------------------------------------------------------- *\
 # | build_deb.sh - turn an install into a .deb                        |
 # |                                                                   |
-# |   Part of rog-claymore-linux                                      |
+# |   Part of Claymore@Linux                                          |
 # |   SPDX-License-Identifier: GPL-2.0-or-later                       |
 # |                                                                   |
 # | Called by 'make package'. The package is built from what          |
@@ -49,7 +49,7 @@ installed_kb=$(du -sk "$ROOT/usr" | cut -f1)
 # this on either does not fight the dependency resolver over a package name
 # that changed underneath it.
 cat > "$ROOT/DEBIAN/control" <<EOF
-Package: rog-claymore
+Package: claymore-linux
 Version: $VERSION
 Architecture: $ARCH
 Maintainer: $MAINTAINER

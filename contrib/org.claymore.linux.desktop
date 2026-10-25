@@ -1,12 +1,12 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=ROG Claymore
+Name=Claymore@Linux
 GenericName=Keyboard lighting
 Comment=Light effects and per-key designs for the ASUS ROG Claymore
 Exec=claymore-gui
 TryExec=claymore-gui
-Icon=rog-claymore
+Icon=claymore-linux
 Terminal=false
 Categories=Settings;HardwareSettings;
 Keywords=keyboard;rog;asus;aura;rgb;lighting;backlight;claymore;
@@ -27,6 +27,6 @@ StartupWMClass=Claymore-gui
 #
 #     install -Dm644 contrib/org.claymore.linux.desktop \
 #         ~/.local/share/applications/org.claymore.linux.desktop
-#     install -Dm644 assets/rog-claymore.svg \
-#         ~/.local/share/icons/hicolor/scalable/apps/rog-claymore.svg
+#     install -Dm644 assets/claymore-linux.svg \
+#         ~/.local/share/icons/hicolor/scalable/apps/claymore-linux.svg
 #     update-desktop-database ~/.local/share/applications 2>/dev/null || true

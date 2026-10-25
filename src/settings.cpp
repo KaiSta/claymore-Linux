@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | settings.cpp - reading and writing the user's preferences |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
@@ -194,7 +194,7 @@ namespace claymore
         }
 
         std::ostringstream out;
-        out << "# rog-claymore-linux settings\n";
+        out << "# Claymore@Linux settings\n";
         out << "# key value - one per line; '#' starts a comment\n";
 
         std::vector<std::pair<std::string, std::string>> sorted(values.begin(), values.end());

@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | main_gui.cpp - the claymore-gui application               |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 |                                                           |
 |   One 30 Hz timer drives everything: the two live previews, |
@@ -237,7 +237,7 @@ namespace claymore
                 window_created = TRUE;
 
                 GtkWidget* window = gtk_application_window_new(gtk_app);
-                gtk_window_set_title(GTK_WINDOW(window), "ROG Claymore");
+                gtk_window_set_title(GTK_WINDOW(window), "Claymore@Linux");
                 gtk_window_set_default_size(GTK_WINDOW(window), 1180, 860);
                 set_window_icon(GTK_WINDOW(window));
 
@@ -449,7 +449,7 @@ int main(int argc, char** argv)
             }
 
             char path[1024];
-            std::snprintf(path, sizeof(path), "%s/rog-claymore-%d.png",
+            std::snprintf(path, sizeof(path), "%s/claymore-linux-%d.png",
                           export_icons.c_str(), size);
 
             if(gdk_pixbuf_save(pixbuf, path, "png", nullptr, nullptr))
@@ -470,7 +470,7 @@ int main(int argc, char** argv)
         \*-----------------------------------------------------*/
         if(GdkPixbuf* pixbuf = rog_emblem(256))
         {
-            const std::string path = export_icons + "/rog-claymore.png";
+            const std::string path = export_icons + "/claymore-linux.png";
 
             if(gdk_pixbuf_save(pixbuf, path.c_str(), "png", nullptr, nullptr))
             {

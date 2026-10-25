@@ -1,10 +1,13 @@
-# rog-claymore-linux
+# Claymore@Linux
 #
 # The CLI and the driver have no dependencies beyond a C++17 compiler and
 # libc. The GUI needs GTK+ 3 development headers; if they are missing the GUI
 # target is skipped and everything else still builds.
 
-VERSION ?= 1.0.0
+# VERSION is the one place the version lives: 'make package' names the .deb
+# after it and .github/workflows/release.yml refuses a tag that disagrees with
+# it. An explicit VERSION=... still wins, for a one-off local build.
+VERSION ?= $(shell cat VERSION 2>/dev/null || echo 1.0.0)
 
 CXX      ?= g++
 CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wshadow -Iinclude
@@ -38,12 +41,12 @@ USERUNITDIR ?= $(PREFIX)/lib/systemd/user
 DESKTOP_FILE := org.claymore.linux.desktop
 
 # The icon the desktop entry, the launcher and the panel look up.
-ICON_NAME   := rog-claymore
+ICON_NAME   := claymore-linux
 ICON_SIZES  := 16 24 32 48 64 128 256
 
 # ------------------------------------------------------------------ package --
 DEB_ARCH ?= $(shell dpkg --print-architecture 2>/dev/null || uname -m)
-DEB_NAME := rog-claymore_$(VERSION)_$(DEB_ARCH)
+DEB_NAME := claymore-linux_$(VERSION)_$(DEB_ARCH)
 DEB_ROOT := $(BUILD)/deb/$(DEB_NAME)
 DEB_FILE := $(BUILD)/$(DEB_NAME).deb
 
@@ -162,7 +165,7 @@ install: cli $(if $(GUI_AVAILABLE),gui,)
 	install -m 644 contrib/$(DESKTOP_FILE) $(DESTDIR)$(APPSDIR)/$(DESKTOP_FILE)
 
 	install -d $(DESTDIR)$(UDEVDIR)
-	install -m 644 udev/99-rog-claymore.rules $(DESTDIR)$(UDEVDIR)/99-rog-claymore.rules
+	install -m 644 udev/99-claymore-linux.rules $(DESTDIR)$(UDEVDIR)/99-claymore-linux.rules
 
 	install -d $(DESTDIR)$(USERUNITDIR)
 	install -m 644 contrib/claymore-design.service $(DESTDIR)$(USERUNITDIR)/claymore-design.service
@@ -177,7 +180,7 @@ uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/claymore $(DESTDIR)$(BINDIR)/claymore-gui
 	rm -f $(DESTDIR)$(APPSDIR)/$(DESKTOP_FILE)
 	rm -f $(DESTDIR)$(ICONDIR)/scalable/apps/$(ICON_NAME).svg
-	rm -f $(DESTDIR)$(UDEVDIR)/99-rog-claymore.rules
+	rm -f $(DESTDIR)$(UDEVDIR)/99-claymore-linux.rules
 	rm -f $(DESTDIR)$(USERUNITDIR)/claymore-design.service
 	rm -f $(DESTDIR)$(MANDIR)/man1/claymore.1.gz $(DESTDIR)$(MANDIR)/man1/claymore-gui.1.gz
 	@for size in $(ICON_SIZES); do \

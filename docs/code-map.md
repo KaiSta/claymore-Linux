@@ -13,7 +13,7 @@ make verify-docs     # validate this map and agent guidance
 make verify-gui      # GUI pixel check; display and test tooling required
 make verify-design   # design-tab interaction check; display and AT-SPI required
 make verify-install  # staged install/package check
-make package         # build/rog-claymore_<version>_<arch>.deb
+make package         # build/claymore-linux_<version>_<arch>.deb
 ```
 
 ## Entry points and ownership
@@ -35,7 +35,7 @@ make package         # build/rog-claymore_<version>_<arch>.deb
 | Sync | `src/sync_server.cpp`, `include/claymore/sync_server.hpp` | RGBC UNIX-datagram protocol and daemon state |
 | Tests | `tests/test_core.cpp` | Hardware-free regression suite |
 | Generator/package | `tools/gen_layout.py`, `tools/build_deb.sh` | Reproduce layout tables; build Debian package |
-| Install data | `Makefile`, `contrib/`, `udev/`, `assets/`, `docs/` | Desktop/service/udev/man/icon/package inputs |
+| Install data | `Makefile`, `VERSION`, `contrib/`, `udev/`, `assets/`, `docs/` | Desktop/service/udev/man/icon/package inputs, release version |
 
 ## Runtime/data flow
 
@@ -62,7 +62,8 @@ GUI main ── AppState ── panels/widgets ── core modules
 - Preference/config path → `settings.*`; preserve unknown keys.
 - CLI command → `src/main.cpp` plus `docs/claymore.1` and `README.md`.
 - GUI behavior → `gui/main_gui.cpp` first, then `app/panels`, then the relevant widget; run `make verify-gui` and `make verify-design`.
-- Packaging/install metadata → `Makefile`, `tools/build_deb.sh`, `contrib/`, `udev/`, `assets/`; run `make verify-install`.
+- Packaging/install metadata → `Makefile`, `tools/build_deb.sh`, `contrib/`, `udev/`, `assets/`; run `make verify-install`. The developer walkthrough (build, checks, packaging, releases, generated tables) is `CONTRIBUTING.md`.
+- Release version or tag rules → `VERSION`, `.github/workflows/release.yml`, `.github/ci/build-deb.sh`; the workflow rejects a tag that disagrees with `VERSION`.
 - Agent guidance/map changes → `AGENTS.md`, `skills/code-map/SKILL.md`, `.clinerules/code-map.md`; run `make verify-docs`.
 
 ## Protocol invariants
@@ -82,7 +83,7 @@ GUI main ── AppState ── panels/widgets ── core modules
   AsusAuraTUFKeyboardController/AsusAuraTUFKeyboardLayouts.h > src/layout_data.cpp
   ```
 
-- `gui/icon.cpp` and `assets/rog-claymore.svg` intentionally describe the same emblem; `make verify-install` compares them.
+- `gui/icon.cpp` and `assets/claymore-linux.svg` intentionally describe the same emblem; `make verify-install` compares them.
 - `build/` and `bin/` are generated and ignored. Build packages with `make package` when a release artifact is needed; do not stage generated output.
 - Protocol/layout data is derived from OpenRGB/Mola19; retain GPL-2.0-or-later attribution.
 

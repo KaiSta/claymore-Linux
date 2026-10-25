@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | design.hpp - the on disk format for a painted design      |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 

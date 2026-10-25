@@ -1,0 +1,152 @@
+name: Release
+
+# A package is built when a version tag is pushed, and only if the tag and the
+# VERSION file agree: VERSION is what the tree builds, the tag is what it is
+# called. Disagreement means one of the two was forgotten, so the run stops
+# before anything is built rather than publishing a mislabelled package.
+#
+# Tag v1.2.3 for VERSION holding 1.2.3. A manual run builds the same packages
+# without creating a release, which is how to check the packaging still works.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Check VERSION against the tag
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+      tag: ${{ steps.resolve.outputs.tag }}
+      publish: ${{ steps.resolve.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the version to build
+        id: resolve
+        run: |
+          set -eu
+
+          version=$(tr -d '[:space:]' < VERSION)
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.+~-]+)?$'; then
+              echo "::error file=VERSION::'$version' is not a version like 1.2.3"
+              exit 1
+          fi
+
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+              tag="$GITHUB_REF_NAME"
+              if [ "${tag#v}" != "$version" ]; then
+                  echo "::error file=VERSION::tag $tag names ${tag#v} but VERSION holds $version; bump VERSION or retag"
+                  exit 1
+              fi
+              publish=true
+          else
+              # Manual run: build and verify, publish nothing.
+              tag="v$version"
+              publish=false
+          fi
+
+          echo "version $version, tag $tag, publish $publish"
+          {
+              echo "### Claymore@Linux $version"
+              echo
+              echo '```'
+              echo "tag:     $tag"
+              echo "publish: $publish"
+              echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: .deb (${{ matrix.arch }})
+    needs: version
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+          - arch: arm64
+            platform: linux/arm64
+    steps:
+      - uses: actions/checkout@v4
+
+      # Each package is built and tested by Ubuntu of its own architecture in a
+      # container, so arm64 is compiled by an arm64 compiler rather than a
+      # cross-compiler that could link the GUI against the wrong GTK.
+      - name: Register qemu for arm64
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Build and test in ${{ matrix.arch }} Ubuntu 24.04
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -eu
+          docker run --rm \
+              --platform "$PLATFORM" \
+              --volume "$PWD:/src" \
+              --workdir /src \
+              --env VERSION \
+              --env ARCH \
+              --env HOST_UID="$(id -u)" \
+              --env HOST_GID="$(id -g)" \
+              ubuntu:24.04 \
+              bash .github/ci/build-deb.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb-${{ matrix.arch }}
+          path: build/claymore-linux_${{ needs.version.outputs.version }}_${{ matrix.arch }}.deb
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Attach the packages to the release
+    needs:
+      - version
+      - build
+    if: needs.version.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: deb-*
+          merge-multiple: true
+          path: dist
+
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.version.outputs.tag }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -eu
+          ls -l dist
+
+          # A rerun of the same tag replaces the assets instead of failing on
+          # the release that the first run already created.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+              gh release upload "$TAG" dist/*.deb --clobber
+          else
+              gh release create "$TAG" dist/*.deb \
+                  --title "Claymore@Linux $VERSION" \
+                  --generate-notes \
+                  --verify-tag
+          fi

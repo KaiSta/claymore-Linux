@@ -1,10 +1,10 @@
-# rog-claymore-linux
+# Claymore@Linux
 #
 # Grants members of the plugdev group access to the ASUS ROG Claymore keyboard
 # so the lighting can be driven without root.
 #
 # Install with:
-#     sudo cp udev/99-rog-claymore.rules /etc/udev/rules.d/
+#     sudo cp udev/99-claymore-linux.rules /etc/udev/rules.d/
 #     sudo udevadm control --reload-rules
 #     sudo udevadm trigger
 #

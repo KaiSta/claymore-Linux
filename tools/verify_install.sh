@@ -51,15 +51,15 @@ EXPECTED=(
     "usr/local/bin/claymore"
     "usr/local/bin/claymore-gui"
     "usr/local/share/applications/org.claymore.linux.desktop"
-    "usr/local/share/icons/hicolor/scalable/apps/rog-claymore.svg"
-    "usr/local/share/icons/hicolor/16x16/apps/rog-claymore.png"
-    "usr/local/share/icons/hicolor/24x24/apps/rog-claymore.png"
-    "usr/local/share/icons/hicolor/32x32/apps/rog-claymore.png"
-    "usr/local/share/icons/hicolor/48x48/apps/rog-claymore.png"
-    "usr/local/share/icons/hicolor/64x64/apps/rog-claymore.png"
-    "usr/local/share/icons/hicolor/128x128/apps/rog-claymore.png"
-    "usr/local/share/icons/hicolor/256x256/apps/rog-claymore.png"
-    "usr/local/lib/udev/rules.d/99-rog-claymore.rules"
+    "usr/local/share/icons/hicolor/scalable/apps/claymore-linux.svg"
+    "usr/local/share/icons/hicolor/16x16/apps/claymore-linux.png"
+    "usr/local/share/icons/hicolor/24x24/apps/claymore-linux.png"
+    "usr/local/share/icons/hicolor/32x32/apps/claymore-linux.png"
+    "usr/local/share/icons/hicolor/48x48/apps/claymore-linux.png"
+    "usr/local/share/icons/hicolor/64x64/apps/claymore-linux.png"
+    "usr/local/share/icons/hicolor/128x128/apps/claymore-linux.png"
+    "usr/local/share/icons/hicolor/256x256/apps/claymore-linux.png"
+    "usr/local/lib/udev/rules.d/99-claymore-linux.rules"
     "usr/local/lib/systemd/user/claymore-design.service"
     "usr/local/share/man/man1/claymore.1.gz"
     "usr/local/share/man/man1/claymore-gui.1.gz"
@@ -147,7 +147,7 @@ fi
 echo
 echo "step 4: the installed icons are real PNGs at the right sizes"
 for size in 16 24 32 48 64 128 256; do
-    icon="$STAGE/usr/local/share/icons/hicolor/${size}x${size}/apps/rog-claymore.png"
+    icon="$STAGE/usr/local/share/icons/hicolor/${size}x${size}/apps/claymore-linux.png"
 
     if file -b "$icon" | grep -q "PNG image data, ${size} x ${size}"; then
         :
@@ -163,7 +163,7 @@ fi
 # The drawn icon and the vector one are two descriptions of the same emblem, so
 # a gross mismatch means one of them was edited without the other.
 if command -v rsvg-convert >/dev/null 2>&1 && command -v compare >/dev/null 2>&1; then
-    rsvg-convert -w 256 -h 256 "$STAGE/usr/local/share/icons/hicolor/scalable/apps/rog-claymore.svg" \
+    rsvg-convert -w 256 -h 256 "$STAGE/usr/local/share/icons/hicolor/scalable/apps/claymore-linux.svg" \
         -o build/install-icon-svg.png 2>/dev/null
 
     if [ -f build/install-icon-svg.png ]; then
@@ -173,7 +173,7 @@ if command -v rsvg-convert >/dev/null 2>&1 && command -v compare >/dev/null 2>&1
         # by about 21000, and the same drawing scaled by 37000. 5000 sits in
         # the gap with room on both sides.
         DIFF=$(compare -metric AE -fuzz 5% \
-            "$STAGE/usr/local/share/icons/hicolor/256x256/apps/rog-claymore.png" \
+            "$STAGE/usr/local/share/icons/hicolor/256x256/apps/claymore-linux.png" \
             build/install-icon-svg.png null: 2>&1 | awk '{print $1}')
 
         if [ "${DIFF:-999999999}" -lt 5000 ]; then
@@ -195,7 +195,7 @@ if command -v gdk-pixbuf-thumbnailer >/dev/null 2>&1; then
     rm -f build/install-icon-gdkpixbuf.png
 
     if gdk-pixbuf-thumbnailer -s 256 \
-        "$STAGE/usr/local/share/icons/hicolor/scalable/apps/rog-claymore.svg" \
+        "$STAGE/usr/local/share/icons/hicolor/scalable/apps/claymore-linux.svg" \
         build/install-icon-gdkpixbuf.png >/dev/null 2>&1 \
        && [ -s build/install-icon-gdkpixbuf.png ]; then
         ok "the scalable icon loads the way the desktop loads it"
@@ -223,7 +223,7 @@ if ! command -v dpkg-deb >/dev/null 2>&1; then
 else
     make package >/dev/null 2>&1 || fail "make package failed"
 
-    DEB=$(ls build/rog-claymore_*_*.deb 2>/dev/null | head -1)
+    DEB=$(ls build/claymore-linux_*_*.deb 2>/dev/null | head -1)
 
     if [ -z "$DEB" ]; then
         fail "no .deb was produced"

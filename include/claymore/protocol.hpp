@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | protocol.hpp - ASUS Aura keyboard wire protocol           |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 |                                                           |
 |   Packet layouts were reverse engineered by the OpenRGB   |

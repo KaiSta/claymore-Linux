@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- rog-claymore-linux : the keyboard panel, window and launcher icon.
+  <!-- Claymore@Linux : the keyboard panel, window and launcher icon.
 
        The same emblem is drawn at runtime with cairo (gui/icon.cpp), so nothing
        has to be installed for the window and panel icons to work. This file is

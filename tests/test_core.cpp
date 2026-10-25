@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | test_core.cpp - hardware-free test suite                  |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 |                                                           |
 |   Everything here runs without a keyboard attached, which  |
@@ -1582,7 +1582,7 @@ namespace
 
 int main()
 {
-    std::printf("rog-claymore-linux test suite\n");
+    std::printf("Claymore@Linux test suite\n");
     std::printf("=============================\n");
 
     test_colors();

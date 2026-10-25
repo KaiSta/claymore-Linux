@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | effects.cpp - effect settings and preview rendering       |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 

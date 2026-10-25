@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | hidraw.cpp - minimal Linux hidraw transport               |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
@@ -396,7 +396,7 @@ namespace claymore
             error = "cannot open " + info.device_path + ": " + std::strerror(errno);
             if(errno == EACCES)
             {
-                error += " (install udev/99-rog-claymore.rules or run as root)";
+                error += " (install udev/99-claymore-linux.rules or run as root)";
             }
             return nullptr;
         }

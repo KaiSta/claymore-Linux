@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | panels.cpp - GUI tabs                                     |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 

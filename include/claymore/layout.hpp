@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | layout.hpp - per-key LED layout tables for the Claymore   |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 |                                                           |
 |   The layout tables in layout_data.cpp are derived from   |

@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | sync_server.cpp - Aura Sync style colour sharing          |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
@@ -159,10 +159,10 @@ namespace claymore
         {
             if(*runtime != '\0')
             {
-                return std::string(runtime) + "/rog-claymore.sock";
+                return std::string(runtime) + "/claymore-linux.sock";
             }
         }
-        return "/tmp/rog-claymore-" + std::to_string(::getuid()) + ".sock";
+        return "/tmp/claymore-linux-" + std::to_string(::getuid()) + ".sock";
     }
 
     std::unique_ptr<SyncServer> SyncServer::create

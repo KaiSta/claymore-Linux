@@ -1,137 +1,213 @@
-# rog-claymore-linux
+# Claymore@Linux: RGB lighting control for the ASUS ROG Claymore keyboard
 
-Control the RGB lighting of an **ASUS ROG Claymore** keyboard on Linux, without
-Armoury Crate and without Windows.
+Claymore@Linux controls every LED on an **ASUS ROG Claymore** mechanical
+keyboard from **Linux**: firmware effects, per-key RGB designs, an animated GTK window and an Aura Sync
+style streaming socket. No Armoury Crate, no Windows, no vendor software, no
+daemon left running.
 
-Two programs are built:
+Two programs are built from this repository:
 
-* **`claymore`** — a command line tool: firmware effects, per-key painting,
-  ASCII preview and the sync daemon.
-* **`claymore-gui`** — a GTK 3 application with a live keyboard preview, an
-  effect gallery, a per-key design mode and a sync server panel.
+| Program | What it is |
+| --- | --- |
+| `claymore` | Command line tool: firmware effects, per-key painting, terminal preview and the sync daemon. |
+| `claymore-gui` | GTK 3 application: live keyboard preview, effect gallery, per-key design editor, panel icon and sync server panel. |
 
-![the effects tab](docs/screenshot.png)
+![The Claymore@Linux GUI showing the effects tab with an animated preview of the ROG Claymore keyboard](docs/screenshot.png)
 
-There is no ASUS software for Linux, so this talks to the keyboard's own USB HID
-protocol directly. See [`docs/PROTOCOL.md`](docs/PROTOCOL.md) for the packet
-reference and where it came from.
+**Read on:** [Features](#features) · [Requirements](#requirements) ·
+[Install](#install) · [The GUI](#the-gui) · [Command line](#command-line) ·
+[Everyday recipes](#everyday-recipes) · [Effects](#firmware-effects) ·
+[Layouts](#keyboard-layouts) · [Sync / Aura Sync](#sync-daemon-aura-sync-on-linux) ·
+[Troubleshooting](#troubleshooting-and-faq) · [Limitations](#known-limitations) ·
+[Contributing](#contributing) · [Licence](#licence-and-attribution)
 
-## What works
+## Features
 
-* **Firmware effects** — static, breathing, spectrum cycle, reactive, wave,
-  ripple, starry night, quicksand, current, rain drop. These run on the keyboard
-  itself, so the lighting animates with no host CPU cost and can be saved to
-  flash to survive a reboot.
-* **Direction, speed and colour** control per effect, plus random colour modes
-  where the firmware supports it.
-* **Per-key painting** in direct mode: any layout of yours streamed from the PC
-  at up to 30 frames per second, and left on the keyboard when the program
-  exits - the board keeps the last frame it is given, so a design does not need
-  a process to stay lit (see [Making a design stay on the
-  keyboard](#making-a-design-stay-on-the-keyboard)).
-* **Named designs** you can save, reload, delete and mark as the one to load
-  every time the GUI starts, or at login via a systemd user unit.
+* **Firmware effects, animated by the keyboard itself** — static, breathing,
+  spectrum cycle, reactive, wave, ripple, starry night, quicksand, current and
+  rain drop. Because the Claymore runs them, they cost no host CPU and can be
+  written to flash so they survive a reboot.
+* **Direction, speed and colour per effect**, including random colour modes where
+  the firmware supports them, with each effect defaulting to the speed ASUS ships
+  for it.
+* **Per-key RGB painting** — paint any key a different colour in the GUI or with
+  one CLI command, at up to 30 frames per second, and let the board keep the
+  last frame after the program exits.
+* **Named designs** — save, load, delete and mark one as the startup design, so
+  the same picture comes back at login through a systemd user unit (nothing left
+  running) or when the GUI starts.
 * **A panel icon** so the window can be put away while the design stays applied,
-  with a menu to bring the window back, re-apply the design, or hand the
-  keyboard to its firmware.
-* **A sync server** so several programs — or your own scripts — can share the
-  keyboard, which is the closest thing to Aura Sync on Linux.
-* **Layout handling** for both legend sets and for the detachable numpad on
-  either side, including auto detection.
-
-## What is honestly not finished
-
-* Verified against **one** keyboard, the author's own ANSI unit. The protocol is
-  a re-implementation of a documented reverse engineering effort, and the parts
-  that can be checked without hardware are unit tested, but exotic firmware
-  revisions may behave differently.
-* The four step **brightness** control is an extrapolation from an
-  undocumented byte and is labelled experimental in the interface.
-* The Claymore's **key press events** are not exposed; the reactive and ripple
-  effects are driven by the firmware and their software previews are
-  approximations rather than reads of the real thing, because the keyboard
-  cannot report its LED colours back.
-* Per-key **animations** are not exposed in the GUI yet, only static designs.
-* A design **cannot be stored in the keyboard**, only re-applied at login by the
-  systemd unit in `contrib/`. The flash has no room for a per key picture: that
-  is a hardware limit, not a missing feature.
-* Verified end to end against one keyboard: firmware `01.09.01`, numpad mounted
-  left, ISO legends. `info`, `keys`, `static`, `breathing`, `paint` and
-  `release` were all confirmed working on real hardware, and the detected key
-  map was confirmed correct.
+  with a menu to reopen it, re-apply the design, hand the keyboard back to its
+  firmware, or quit and keep the picture.
+* **Aura Sync on Linux** — the sync daemon streams frames from any program to the
+  keyboard over a UNIX datagram socket, so your own scripts, visualisers or music
+  tools can share the backlight.
+* **Both legend sets and the detachable numpad** on either side, detected
+  automatically and overridable per command.
+* **True colour terminal preview** of any effect, with no keyboard attached, for
+  trying things out over SSH or before buying the board.
+* **No dependencies beyond libc** for the driver and CLI — no `hidapi`, no
+  `libusb`, no `libudev`; GTK 3 is needed only for the GUI. The package is a
+  single `.deb` for `amd64` or `arm64`.
 
 ## Requirements
 
-* Linux with `hidraw` support and a C++17 compiler.
-* GTK 3 development headers for the GUI. Everything else builds without them.
-* `python3` only if you want to regenerate the layout tables, or to run the
-  GUI checks. Those also want `wmctrl` and ImageMagick, because they drive the
-  real window and read real pixels.
+* Linux with `hidraw` support (`/dev/hidraw*` and `/sys`), which every mainstream
+  distribution has.
+* A C++17 compiler to build it, and GTK 3 development headers if you want the
+  GUI. Everything else builds without GTK.
 
-No dependency on `hidapi`, `libusb` or `libudev`: the driver reads `/sys` and
-writes `/dev/hidraw*` itself. See `src/hidraw.cpp`.
+The driver reads `/sys` and writes `/dev/hidraw*` directly (`src/hidraw.cpp`), so
+there is no dependency on `hidapi`, `libusb` or `libudev`.
 
-## Build
+## Install
+
+### Ubuntu and Debian: install the .deb
+
+Pick `claymore-linux_<version>_amd64.deb` or `claymore-linux_<version>_arm64.deb`
+from the release page and install it. The package is called `claymore-linux`,
+because an `@` cannot appear in a Debian package name; the commands it installs
+are `claymore` and `claymore-gui`.
 
 ```sh
-make            # CLI + GUI + tests
-make cli        # just bin/claymore
-make gui        # just bin/claymore-gui
-make test       # hardware free test suite
+sudo apt install ./claymore-linux_1.0.0_amd64.deb
 ```
 
-## Installing
+The package contains both programs, the man pages, the desktop entry, the icons,
+the udev rule and the systemd user unit, and its `postinst` reloads the udev
+rules so the keyboard works without a replug. It depends on `libc6 (>= 2.34)`
+and GTK 3 (`libgtk-3-0t64` or `libgtk-3-0`, whichever your release calls it).
+
+### Any distribution: build and install from source
 
 ```sh
-sudo make install              # into /usr/local
+make                               # CLI, GUI if GTK 3 is present, and the tests
+sudo make install                  # into /usr/local
 PREFIX=$HOME/.local make install   # or without root
-sudo make uninstall            # your designs in ~/.config/claymore are left alone
-make package                   # a .deb, built with dpkg-deb alone
+sudo make uninstall                # your designs in ~/.config/claymore are kept
 ```
 
-`make install` puts the two binaries, the man pages, the desktop entry, the
-udev rule, the systemd user unit and the icon where they belong. It will tell
-you if GTK 3 was missing, because then there is no GUI and no icons.
+`make install` puts the two binaries, the man pages, the desktop entry, the udev
+rule, the systemd user unit and the icons where they belong, and tells you if
+GTK 3 was missing, because then there is no GUI and no icons.
 
-`make package` builds `build/rog-claymore_<version>_<arch>.deb` out of exactly
-what `make install` stages, so the two can never install different things. It
-needs no `debhelper` and no `dh_make`, and the package's `postinst` reloads the
-udev rules so the keyboard works without a replug:
+To uninstall a `.deb`: `sudo apt remove claymore-linux`. Your designs in
+`~/.config/claymore` are never touched.
 
-```sh
-sudo apt install ./build/rog-claymore_1.0.0_amd64.deb
-```
-
-Both are checked by `make verify-install`, which stages an install, runs the
-staged binaries, validates the desktop entry, checks that every icon is really a
-PNG of the size it claims, compares the vector icon against the drawn one, and
-asserts that the package contains the same files and that `uninstall` leaves
-nothing behind.
-
-The icon is one drawing with two descriptions. At run time `gui/icon.cpp` draws
-it with cairo, so the window, the task bar and the panel icon are always the
-same picture; `claymore-gui --export-icons <dir>` writes the PNG sizes that
-`make install` puts in the icon theme, using that same drawing and needing no
-display. `assets/rog-claymore.svg` is the same geometry as vectors for the
-launcher, and `verify-install` fails if the two ever disagree.
-
-## Permissions
+### Give your user access to the keyboard
 
 Reading and writing the keyboard needs access to `/dev/hidraw6` (the Aura control
-interface). `sudo make install` installs the udev rule for you; by hand it is:
+interface). `sudo make install` and the `.deb` install the udev rule for you; by
+hand it is:
 
 ```sh
-sudo cp udev/99-rog-claymore.rules /etc/udev/rules.d/
+sudo cp udev/99-claymore-linux.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
 
-Then replug the keyboard, or log out and back in. This grants the `plugdev`
-group access; adjust the `GROUP=` in the rule if your distribution uses
-something else.
+Then replug the keyboard, or log out and back in. The rule grants the `plugdev`
+group access; adjust `GROUP=` in the rule if your distribution uses something
+else.
 
-Without the rule, `claymore list` still works (it only reads), but everything
-that changes the lighting will report a permission error.
+Without the rule, `claymore list` still works because it only reads, but anything
+that changes the lighting reports a permission error.
+
+### Check that it found the keyboard
+
+```sh
+claymore list      # what hidraw nodes exist, and which is the Claymore
+claymore info      # firmware version, numpad side, legend set, active layout
+```
+
+## The GUI
+
+```sh
+claymore-gui
+```
+
+Three tabs:
+
+* **Effects** — the preset gallery on the left with an animated preview of the
+  keyboard above the controls. Speed, brightness, direction, random colours and
+  the colour swatches all apply to the selected effect. *Live apply* pushes
+  changes as you drag. There is no "don't save" option, because the commit packet
+  is what makes an effect appear at all; see
+  [Firmware effects](#firmware-effects).
+* **Design your own** — paint keys with the brush, use the eyedropper to copy a
+  key's colour, middle click to erase, or start from *Rainbow fill*. Designs are
+  saved under a name in `~/.config/claymore/designs/`, and the picker on the tab
+  loads, saves, deletes and switches between them. *Load at startup* marks one to
+  be loaded whenever the GUI starts, and it is the same design
+  `claymore paint --default` applies at login.
+
+  Each design is a plain text file, one `slot colour` per line, so designs are
+  diffable, hand editable and scriptable.
+
+  Your first edit shows the design on the keyboard by itself, so painting a key
+  lights that key, and it **stays there when you close the window**, because the
+  keyboard keeps the last frame it is given. Streamed frames stay out of the way
+  until that first edit: holding the keyboard in direct mode pauses the firmware
+  effect, so claiming the board the moment the tab opens would make the *Effects*
+  tab look broken. Untick *Show on keyboard* to hand the board back, and read
+  [how to keep a design on the keyboard](#keep-a-design-on-the-keyboard) for the
+  details and for surviving a reboot.
+
+  The canvas title tracks the tool as you switch — *Click or drag to paint*,
+  *Click or drag to erase*, *Click a key to copy its colour* — because the
+  eyedropper deliberately does not paint and used to look like a canvas that
+  ignored clicks.
+* **Sync** — start and stop the sync server and watch incoming colours appear.
+
+The window carries the ROG eye emblem as its icon, drawn with cairo at runtime
+rather than loaded from a file, so the title bar, the task list and the panel icon
+are all the same drawing. `assets/claymore-linux.svg` is the same emblem as vectors
+for the launcher, and `make install` also puts PNGs of it in the icon theme.
+
+### Put the window in the panel
+
+*To panel* in the header hides the window and leaves a ROG icon in the panel with
+the program still running. The design stays applied, and anything that needs to
+keep ticking — a preview, or a design with movement in it — keeps ticking.
+
+The icon's menu offers *Show the window*, *Re-apply my design* (useful after
+something else grabbed the lighting), *Hand the keyboard back*, and *Quit and keep
+the design*.
+
+### Start in the panel, and start at login
+
+*Start in the panel* in the header (or `claymore settings start-in-tray on`) saves
+the choice, so from then on the window stays away and only the panel icon
+appears. That is the setting to turn on **before** adding the program to your
+desktop's autostart, and it is why the autostart entry needs no arguments:
+
+```sh
+claymore settings start-in-tray on
+install -Dm644 contrib/autostart/org.claymore.linux.desktop \
+    ~/.config/autostart/org.claymore.linux.desktop
+```
+
+One-off flags:
+
+```sh
+claymore-gui --tray        # hide the window for this run, whatever the setting says
+claymore-gui --window      # show it for this run even though the setting is on
+claymore-gui --no-design   # ignore the startup design for this run
+claymore settings          # list the preferences, and where they live
+```
+
+`make install` deliberately does not install the autostart file: starting a
+program at everybody's login is the user's decision, not the package's. The
+systemd unit below is the other option, for a design applied at login with nothing
+left running at all.
+
+If the desktop has no tray (GNOME without an extension, for instance), the window
+stays open and says so, rather than leaving a running program that cannot be seen
+or reached.
+
+The previews are software renderings of the effects; the keyboard does the real
+animating for firmware effects. That distinction matters for the reactive and
+ripple effects, whose previews are approximations.
 
 ## Command line
 
@@ -165,31 +241,30 @@ claymore settings start-in-tray on
 **Every effect change is stored in the keyboard.** The Claymore will not display
 an effect until it has been committed with the `0x50/0x55` packet, and that same
 packet is what writes flash. There is no way to preview an effect without also
-storing it, so `--no-save` exists only for compatibility and now prints a note
-that it is ignored. This is documented properly in `docs/PROTOCOL.md`.
+storing it, so `--no-save` exists only for compatibility and prints a note that it
+is ignored. `docs/PROTOCOL.md` documents the packet sequence.
 
 Each effect defaults to the speed the vendor software ships for it, so
-`claymore effect wave --color ff0000 --color 0000ff` looks right without any
-tuning. Note that the 0..100 speed scale is linear in the firmware's byte and
-0 is the *fastest*, so the top of the range is genuinely extreme.
+`claymore effect wave --color ff0000 --color 0000ff` looks right without tuning.
+The `0..100` speed scale is linear in the firmware's byte and `0` is the
+*fastest*, so the top of the range is genuinely extreme.
 
 Key names come from the layout, so `claymore keys` is the reference for what you
 can pass to `--key`. Slugs (`left-shift`, `f5`) and raw device LED values
 (`0x45`) both work.
 
-### Direct mode, and why `paint` exists
+### Why `paint` exists, and why `fill` + `set` is a trap
 
 Firmware effects are animated by the keyboard. Direct mode is the opposite: the
-host takes responsibility for every LED. Granting direct mode pauses the
-firmware, so the board shows only what the host sends it.
+host takes responsibility for every LED, and granting it pauses the firmware, so
+the board shows only what the host sends.
 
-That has a consequence worth knowing before you script anything. **Entering
-direct mode clears the board.** Each `claymore` invocation is a new process that
-grants direct mode from scratch, so this
+**Entering direct mode clears the board.** Each `claymore` invocation is a new
+process that grants direct mode from scratch, so this
 
 ```sh
 claymore fill 300000        # board goes dim red
-claymore set escape 00ff00   # this blanks the board, then lights Escape
+claymore set escape 00ff00  # this blanks the board, then lights Escape
 ```
 
 leaves you with a single lit key, not a red board with a green Escape. Use one
@@ -205,37 +280,38 @@ If a direct mode session ever leaves the board dark, the fix is one command:
 claymore release
 ```
 
-`set` and `fill` still exist and still work, they just warn that they repaint the
-whole board. `syncd` releases remote control when it exits, so it cannot leave
-you in the dark.
+`set` and `fill` still exist and still work; they just warn that they repaint the
+whole board. The sync daemon releases remote control when it exits, so it cannot
+leave you in the dark.
 
-### Making a design stay on the keyboard
+## Everyday recipes
 
-A painted design is not an effect, and that distinction decides everything about
-how long it lasts.
+### Keep a design on the keyboard
 
-**The keyboard's own memory cannot hold one.** Its flash stores its built in
-effects, parameterised by a handful of colours - the `0x50/0x55` commit packet
-that stores an effect has no counterpart for a per key picture. OpenRGB is
-explicit about this: its `DeviceSaveMode` is marked "not available for
-Claymore". This is not a gap in this project; it is how the hardware works, and
-it is why Aura Creator on Windows needs its own service running to light per key
-layouts.
+A painted design is not an effect, and that distinction decides how long it
+lasts.
 
-**But the board does keep the last frame it is given.** So a design needs no
+**The keyboard's flash cannot hold one.** It stores its built-in effects,
+parameterised by a handful of colours; the `0x50/0x55` commit packet that stores
+an effect has no counterpart for a per-key picture. OpenRGB marks its
+`DeviceSaveMode` "not available for Claymore" for the same reason. This is a
+hardware limit, not a gap in the project, and it is why Aura Creator on Windows
+needs its own service running to light per-key layouts.
+
+**But the board does keep the last frame it is given**, so a design needs no
 process at all to stay lit:
 
 * `claymore paint --design ~/.config/claymore/design.txt` puts a design on the
   board and deliberately does *not* revoke remote control. The keyboard keeps
   showing it after the command exits.
 * The GUI does the same on exit whenever a design is on the keyboard, and saves
-  the design to the file above on the way out. Closing the window no longer
-  throws the design away.
+  the design to that file on the way out. Closing the window no longer throws the
+  design away.
 * `claymore release` hands the keyboard back to its own effects, and unticking
   *Show on keyboard* in the GUI does the same thing.
 
 The trade is that a keyboard holding a design is in remote control: its own
-effects (including the Fn key lighting modes) are paused until you release it.
+effects, including the Fn key lighting modes, are paused until you release it.
 Applying any effect from the *Effects* tab, or the `effect` command, takes the
 board back too, so nothing can get permanently stuck.
 
@@ -252,12 +328,12 @@ systemctl --user enable --now claymore-design.service
 
 It is a one shot, not a daemon: it runs `claymore paint --default`, which loads
 whichever design you marked as the startup one, retrying for up to 30 seconds
-while the hidraw node appears, and then exits. Nothing stays running, and the
-lighting does not depend on this project being resident. Change a design in the
-GUI, and the unit picks up the new one at the next login.
+while the hidraw node appears, then exits. Nothing stays running, and the lighting
+does not depend on this project being resident. Change a design in the GUI and the
+unit picks up the new one at the next login.
 
-The same design is what the GUI loads when it starts, so the two agree by
-construction rather than by two files that have to be kept in step:
+The GUI and the unit load the same design, so the two agree by construction rather
+than by two files kept in step:
 
 ```sh
 claymore designs              # what you have, and which one starts
@@ -265,152 +341,17 @@ claymore default Desk         # choose one, or 'none' to clear it
 claymore paint --default      # what the unit runs
 ```
 
-### Terminal preview
+### Preview an effect in the terminal
 
-`claymore preview <effect>` renders the effect with true colour ANSI blocks
-using the same software renderer the GUI uses. It needs no keyboard attached,
-which makes it the quickest way to see what an effect will look like.
-
-## Sync daemon
-
-This is the Aura Sync equivalent. It holds the keyboard in direct mode and any
-process can push frames to it over a UNIX datagram socket.
+`claymore preview <effect>` renders the effect with true colour ANSI blocks using
+the same software renderer as the GUI. It needs no keyboard attached, which makes
+it the quickest way to see what an effect looks like:
 
 ```sh
-claymore syncd --fps 30
+claymore preview wave --speed 40
 ```
 
-```
-claymore: streaming frames on /run/user/1000/rog-claymore.sock (88 slots, 30 fps)
-```
-
-Options:
-
-| Option | Meaning |
-| --- | --- |
-| `--socket <path>` | socket to listen on, default `$XDG_RUNTIME_DIR/rog-claymore.sock` |
-| `--fps <n>` | frames per second, default 30 |
-| `--demo` | skip the socket and animate a rainbow internally |
-| `--stdin` | read frames from stdin, one hex or `RGBC` message per line |
-| `--idle-effect <name>` | firmware effect to restore when senders go quiet |
-| `--idle-timeout <ms>` | how long without frames before restoring it, default 1500 |
-
-The wire format is documented in `docs/PROTOCOL.md`. A minimal client:
-
-```python
-import os, socket
-
-KEY_COUNT = 88
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-path = os.environ.get("XDG_RUNTIME_DIR", "/tmp") + "/rog-claymore.sock"
-
-frame = b"RGBC" + bytes([1, 0, KEY_COUNT & 0xFF, KEY_COUNT >> 8])
-frame += bytes([0xFF, 0x00, 0x3C] * KEY_COUNT)
-sock.sendto(frame, path)
-```
-
-Sparse updates only need the keys that changed: set the sparse flag and send
-`slot, r, g, b` entries. Sending a `release` message hands the keyboard back to
-its firmware.
-
-Without a running daemon, `claymore syncd --demo` is a good way to confirm the
-direct mode pipeline works.
-
-## GUI
-
-```sh
-claymore-gui
-```
-
-Three tabs:
-
-* **Effects** — the preset gallery on the left, an animated preview of the
-  keyboard above the controls. Speed, brightness, direction, random colours and
-  the colour swatches all apply to the selected effect. *Live apply* pushes
-  changes as you drag. There is no "don't save" option, because the commit
-  packet is what makes the effect appear at all.
-* **Design your own** — paint individual keys with the brush, use the eyedropper
-  to copy a key's colour, middle click to erase, or use *Rainbow fill* to get a
-  starting point. Designs are saved under a name in
-  `~/.config/claymore/designs/`, and the picker on the tab loads, saves,
-  deletes and switches between them. *Load at startup* marks one to be loaded
-every time the GUI starts — and it is the same one `claymore paint --default`
-  applies at login.
-
-  Each design is a plain text file, one `slot colour` per line, so designs are
-  diffable, hand editable and scriptable.
-
-  Your first edit shows the design on the keyboard by itself, so painting a key
-  lights that key - and it **stays there when you close the window**, because
-  the keyboard keeps the last frame it is given. Streamed frames are kept out of
-  the way until that first edit: holding the keyboard in direct mode pauses the
-  firmware effect, and claiming the board the moment the tab opens would make
-  the *Effects* tab look broken. Untick *Show on keyboard* to hand the board
-  back, and see [Making a design stay on the keyboard](#making-a-design-stay-on-the-keyboard)
-  for surviving a reboot.
-
-  The canvas answers for itself as you switch tools: its title changes from
-  *Click or drag to paint* to *Click or drag to erase* to *Click a key to copy
-  its colour*, because the eyedropper deliberately does not paint and used to
-  look like a canvas that ignored clicks.
-* **Sync** — start and stop the sync server and watch incoming colours appear.
-
-The window carries the ROG eye emblem as its icon, drawn with cairo at runtime
-rather than loaded from a file, so the title bar, the task list and the panel
-icon are all the same drawing and nothing has to be installed for it to work.
-`assets/rog-claymore.svg` is the same emblem as vectors for the launcher, and
-`make install` also puts PNGs of it in the icon theme; see
-`contrib/org.claymore.linux.desktop`.
-
-### Putting the window away
-
-*To panel* in the header hides the window and leaves a ROG icon in the panel,
-with the program still running. That matters for two reasons: the design stays
-applied, and anything that needs to keep ticking — a preview, or a design with
-movement in it — keeps ticking.
-
-The icon's menu offers *Show the window*, *Re-apply my design* (useful after
-something else on the machine grabbed the lighting), *Hand the keyboard back*,
-and *Quit and keep the design*.
-
-### Starting in the panel
-
-*Start in the panel* in the header (or `claymore settings start-in-tray on`)
-saves the choice, so from then on the window stays away on every start and only
-the panel icon appears. That is the setting to turn on **before** adding the
-program to your desktop's autostart, and it is why the autostart entry needs no
-arguments at all:
-
-```sh
-claymore settings start-in-tray on
-install -Dm644 contrib/autostart/org.claymore.linux.desktop \
-    ~/.config/autostart/org.claymore.linux.desktop
-```
-
-The design applied at login is the one marked *Load at startup*, so the whole
-arrangement is a setting and a file, with no flag to keep in sync.
-
-```sh
-claymore-gui --tray        # hide the window for this run, whatever the setting says
-claymore-gui --window      # show it for this run even though the setting is on
-claymore-gui --no-design   # ignore the startup design for this run
-claymore settings          # list the preferences, and where they live
-```
-
-`make install` deliberately does not install the autostart file: starting a
-program at everybody's login is the user's decision, not the package's. The
-systemd unit is the other option, for a design applied at login with nothing
-left running at all.
-
-If the desktop has no tray at all (GNOME without an extension, for instance),
-the window stays open and says so, rather than leaving a running program that
-cannot be seen or reached.
-
-The previews are software renderings of the effects; the keyboard does the real
-animating for firmware effects. That distinction matters for the reactive and
-ripple effects, whose previews are approximations.
-
-## Effects
+## Firmware effects
 
 | Name | Firmware mode | Colours | Notes |
 | --- | --- | --- | --- |
@@ -428,10 +369,10 @@ ripple effects, whose previews are approximations.
 Speed runs 0-100 in the interface and is converted to the firmware's 0-254 range,
 where a higher firmware value is slower.
 
-## Layouts
+## Keyboard layouts
 
 The keyboard does not reliably report which legends it has, so the tool infers it
-from the USB `bcdDevice` version and the numpad position from the keyboard
+from the USB `bcdDevice` version and reads the numpad position from the keyboard
 itself. Both can be overridden:
 
 ```sh
@@ -445,84 +386,131 @@ claymore layout --list          # all six variants
 If `claymore info` reports the wrong legend set, pass `--region` to the command
 you are running. Only key names are affected, not which LED lights up.
 
-## Troubleshooting
+## Sync daemon: Aura Sync on Linux
 
-**"no hidraw device matching 0b05:184d"** — the keyboard is not plugged in, or
-`/sys` is unavailable in a container. Check `claymore list`.
-
-**"Permission denied"** — the udev rule is not installed. See Permissions above.
-
-**`claymore info` reports the wrong key legends** — override with `--region`.
-
-**Effects do not survive a reboot** — pass `--persist`, or tick *Save to flash*
-in the GUI. Saving is off by default in the GUI because the Claymore rewrites
-flash on every save.
-
-**Direct mode leaves the keyboard stuck** — unplug and replug, or send a release
-message so the firmware effect resumes.
-
-## Development checks
+The sync daemon holds the keyboard in direct mode while any process pushes frames
+to it over a UNIX datagram socket — the closest thing to Aura Sync on Linux, and
+the way to drive the keyboard from your own scripts.
 
 ```sh
-make test           # hardware-free checks: packets, layouts, canvas geometry,
-                    #   design files, the design store, the settings file
-make verify-docs    # validate AGENTS.md, the code map, and Makefile references
-make verify-gui     # launches the GUI, photographs it, checks it painted
-make verify-design  # drives the design tab with real clicks, saves a design,
-                    #   restarts, and checks the panel icon keeps the design
-make verify-install # stages an install, runs what it staged, builds the .deb
-                    #   and checks it holds exactly the same files
+claymore syncd --fps 30
 ```
 
-Two things here cannot be reached by unit tests, and both have shipped broken
-during development:
+```
+claymore: streaming frames on /run/user/1000/claymore-linux.sock (88 slots, 30 fps)
+```
 
-* a window that opens and shows nothing, because a canvas was built before the
-  layout was known — `verify-gui` photographs the window and counts key pixels.
-* a design tab that ignores clicks — `verify-design` clicks *Fill all*, sets the
-  brush to white through the real colour dialog, types a name into the real
-  "Save as" dialog, clicks keys, and counts the new white pixels.
+| Option | Meaning |
+| --- | --- |
+| `--socket <path>` | socket to listen on, default `$XDG_RUNTIME_DIR/claymore-linux.sock` |
+| `--fps <n>` | frames per second, default 30 |
+| `--demo` | skip the socket and animate a rainbow internally |
+| `--stdin` | read frames from stdin, one hex or `RGBC` message per line |
+| `--idle-effect <name>` | firmware effect to restore when senders go quiet |
+| `--idle-timeout <ms>` | how long without frames before restoring it, default 1500 |
 
-It then goes further, because the features that matter most here are the ones
-that span processes: it closes the window and checks the design stayed on the
-keyboard, that the CLI can apply the same design (which is what the systemd unit
-runs), that restarting brings the design back with its white keys intact, and
-that *To panel* hides the window while the program keeps running. The last step
-ticks *Start in the panel*, restarts with no arguments at all — which is what an
-autostart entry does — and asserts there is no window on screen, then that
-`--window` still gets one back. Every step drives the real window and reads real
-pixels or real files.
+The wire format is documented in `docs/PROTOCOL.md`. A minimal client:
 
-Neither is a unit test: they drive the running window through X11 and AT-SPI.
-`tools/gui_probe.py` is the piece that makes that possible — GTK publishes every
-widget over the accessibility bus with its screen coordinates, so a test can
-find the button labelled *Fill all* and click it instead of guessing at pixels.
-The captures are left in `build/` so you can look at them yourself.
+```python
+import os, socket
 
-For coding agents, read [`AGENTS.md`](AGENTS.md) and use the canonical
-[`docs/code-map.md`](docs/code-map.md) before broad repository searches. Cline
-loads the small adapter in `.clinerules/code-map.md`; skill-aware tools can use
-`skills/code-map/SKILL.md`. The map is checked with `make verify-docs`.
+KEY_COUNT = 88
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+path = os.environ.get("XDG_RUNTIME_DIR", "/tmp") + "/claymore-linux.sock"
 
-The canvas arithmetic itself (which key is under a click, and how close a click
-has to be) lives in `layout.cpp` rather than the GUI, precisely so that it *can*
-be unit tested; see the `canvas geometry` checks.
+frame = b"RGBC" + bytes([1, 0, KEY_COUNT & 0xFF, KEY_COUNT >> 8])
+frame += bytes([0xFF, 0x00, 0x3C] * KEY_COUNT)
+sock.sendto(frame, path)
+```
 
-Set `CLAYMORE_GUI_TRACE=1` to have the GUI report every click, key lookup and
-design write to stderr. That is how a silent no-op gets a name.
+Sparse updates only need the keys that changed: set the sparse flag and send
+`slot, r, g, b` entries. Sending a `release` message hands the keyboard back to its
+firmware.
 
-## Regenerating the layout tables
+Without a running daemon, `claymore syncd --demo` confirms the direct mode
+pipeline works.
 
-`src/layout_data.cpp` is generated, not hand written:
+## Troubleshooting and FAQ
+
+### Is there an Armoury Crate for Linux?
+
+No. ASUS ships no Linux software for the Claymore, so this project talks to the
+keyboard's own USB HID protocol directly. `docs/PROTOCOL.md` records the packet
+reference, where it came from, and the two undocumented quirks the driver depends
+on.
+
+### "no hidraw device matching 0b05:184d"
+
+The keyboard is not plugged in, or `/sys` is unavailable in a container. Check
+`claymore list`.
+
+### "Permission denied"
+
+The udev rule is not installed. See
+[Give your user access to the keyboard](#give-your-user-access-to-the-keyboard).
+
+### The keyboard's LEDs stay dark, or my script left it stuck
+
+The board is still in direct mode. Run `claymore release` to hand it back to its
+firmware, or unplug and replug the keyboard.
+
+### Effects do not survive a reboot
+
+An effect is only stored in flash once it has been committed: pass `--persist`, or
+tick *Save to flash* in the GUI. Saving is off by default in the GUI because the
+Claymore rewrites flash on every save.
+
+A **per-key design** never survives a reboot, because flash cannot store one; see
+[keep a design on the keyboard](#keep-a-design-on-the-keyboard) for the systemd
+unit that re-applies it at login.
+
+### `claymore info` reports the wrong key legends
+
+Override it with `--region uk` (or your region) on the command you are running.
+
+### Does this work with other ASUS keyboards?
+
+It is written for the Claymore (`0b05:184d`) and has only been verified on that
+one. Other Aura keyboards share parts of the protocol, but their layouts and effect
+sets differ, so nothing else is supported.
+
+### Can another program drive the keyboard?
+
+Yes — through the [sync daemon](#sync-daemon-aura-sync-on-linux). It owns the
+keyboard and accepts frames over a socket, so a visualiser, a music player plugin
+or your own script does not have to fight the CLI for the device.
+
+## Known limitations
+
+* **Verified against one keyboard**, the author's own ANSI unit with firmware
+  `01.09.01`, numpad mounted left and ISO legends. `info`, `keys`, `static`,
+  `breathing`, `paint` and `release` were confirmed on real hardware and the
+  detected key map was confirmed correct, but exotic firmware revisions may
+  behave differently.
+* The four step **brightness** control is an extrapolation from an undocumented
+  byte and is labelled experimental in the interface.
+* **Key press events are not exposed**; the reactive and ripple effects are driven
+  by the firmware, and their software previews are approximations because the
+  keyboard cannot report its LED colours back.
+* Per-key **animations** are not exposed in the GUI yet, only static designs.
+* A per-key design **cannot be stored in the keyboard** — a hardware limit, not a
+  missing feature, explained
+  [above](#keep-a-design-on-the-keyboard).
+
+## Contributing
+
+Patches, bug reports and reports from other Claymore firmware revisions are
+welcome. Everything about building, testing, packaging, releasing and
+regenerating the layout tables is in [`CONTRIBUTING.md`](CONTRIBUTING.md):
 
 ```sh
-python3 tools/gen_layout.py <openrgb>/Controllers/AsusAuraUSBController/\
-AsusAuraTUFKeyboardController/AsusAuraTUFKeyboardLayouts.h > src/layout_data.cpp
+make            # CLI + GUI + tests
+make test       # hardware-free test suite
+make package    # build/claymore-linux_<version>_<arch>.deb
 ```
 
-The generator asserts that every matrix cell references a real key, that no two
-keys share an LED and that the name counts match the declared LED counts, so a
-bad extraction fails loudly instead of producing a subtly wrong driver.
+Coding agents should start with [`AGENTS.md`](AGENTS.md) and the canonical
+[`docs/code-map.md`](docs/code-map.md).
 
 ## Licence and attribution
 
@@ -532,6 +520,5 @@ The protocol and the per-key LED tables are derived from
 [OpenRGB](https://openrgb.org/), specifically
 `Controllers/AsusAuraUSBController/AsusAuraTUFKeyboardController/`, authored by
 Mola19 and licensed GPL-2.0-or-later. Because this project builds on that work it
-is licensed the same way, and the derivation is recorded in
-`src/layout_data.cpp`, `include/claymore/protocol.hpp` and
-`docs/PROTOCOL.md`.
+is licensed the same way, and the derivation is recorded in `src/layout_data.cpp`,
+`include/claymore/protocol.hpp` and `docs/PROTOCOL.md`.

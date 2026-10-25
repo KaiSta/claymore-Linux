@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | icon.hpp - the ROG style eye emblem                       |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
@@ -22,7 +22,7 @@ namespace claymore
         | the task bar and the panel icon be the same picture     |
         | with no files to install and no way for them to disagree|
         |                                                       |
-        | assets/rog-claymore.svg is the same geometry as         |
+        | assets/claymore-linux.svg is the same geometry as       |
         | vectors; 'make verify-install' fails if the two ever    |
         | drift apart.                                           |
         |                                                       |

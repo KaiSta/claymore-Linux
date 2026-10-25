@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=ROG Claymore
+Name=Claymore@Linux
 Comment=Apply the saved design at login and wait in the panel
 Exec=claymore-gui
-Icon=rog-claymore
+Icon=claymore-linux
 Terminal=false
 StartupNotify=false
 

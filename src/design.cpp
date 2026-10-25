@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | design.cpp - reading and writing painted designs          |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
@@ -59,7 +59,7 @@ namespace claymore
     {
         std::ostringstream out;
 
-        out << "# rog-claymore-linux design\n";
+        out << "# Claymore@Linux design\n";
         out << "# layout " << layout_id << "\n";
         out << "# slot colour\n";
 

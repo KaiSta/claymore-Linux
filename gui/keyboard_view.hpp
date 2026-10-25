@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | keyboard_view.hpp - keyboard canvas widget                |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 |                                                           |
 |   Draws a layout as a real keyboard picture and, when      |

@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | main.cpp - the claymore command line tool                |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
@@ -83,7 +83,7 @@ namespace
     void print_usage()
     {
         std::cout <<
-R"(rog-claymore-linux - control the lighting of an ASUS ROG Claymore on Linux
+R"(Claymore@Linux - control the lighting of an ASUS ROG Claymore on Linux
 
 USAGE
   claymore <command> [options]

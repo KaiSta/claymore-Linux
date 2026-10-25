@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | color.hpp - RGB colour type for the ROG Claymore tool     |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 

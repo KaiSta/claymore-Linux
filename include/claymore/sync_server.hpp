@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | sync_server.hpp - Aura Sync style colour sharing          |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 |                                                           |
 |   On Windows, Aura Sync lets any application stream        |
@@ -64,8 +64,8 @@ namespace claymore
                                            SyncMessage& out, std::string& error);
 
     /*---------------------------------------------------------*\
-    | Default socket location: $XDG_RUNTIME_DIR/rog-claymore.sock |
-    | falling back to /tmp/rog-claymore-$UID.sock.                |
+    | Default socket: $XDG_RUNTIME_DIR/claymore-linux.sock      |
+    | falling back to /tmp/claymore-linux-$UID.sock.            |
     \*---------------------------------------------------------*/
     std::string default_socket_path();
 

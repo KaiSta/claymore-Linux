@@ -1,6 +1,6 @@
 ---
 name: code-map
-description: Use this skill to navigate rog-claymore-linux with a compact, low-token code map before editing. Compatible with Cline and other agents.
+description: Use this skill to navigate Claymore@Linux with a compact, low-token code map before editing. Compatible with Cline and other agents.
 ---
 
 # Code map
@@ -20,7 +20,7 @@ description: Use this skill to navigate rog-claymore-linux with a compact, low-t
 - Protocol/effects → `src/protocol.cpp`, `src/effects.cpp` and matching headers.
 - Device/layout/design/settings/sync → `src/device.cpp`, `src/layout.cpp`, `src/design.cpp`, `src/settings.cpp`, `src/sync_server.cpp`.
 - GTK state/panels → `gui/app.*`, `gui/panels.cpp`; tray/icon/canvas → `gui/tray.cpp`, `gui/icon.cpp`, `gui/keyboard_view.*`.
-- Tests → `tests/test_core.cpp`; generators/package/verification → `tools/`.
+- Tests → `tests/test_core.cpp`; generators/package/verification → `tools/`; release version/tags → `VERSION`, `.github/workflows/release.yml`.
 
 ## Must not forget
 

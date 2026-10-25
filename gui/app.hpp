@@ -1,7 +1,7 @@
 /*---------------------------------------------------------*\
 | app.hpp - shared GUI state                                |
 |                                                           |
-|   Part of rog-claymore-linux                              |
+|   Part of Claymore@Linux                                  |
 |   SPDX-License-Identifier: GPL-2.0-or-later               |
 \*---------------------------------------------------------*/
 
